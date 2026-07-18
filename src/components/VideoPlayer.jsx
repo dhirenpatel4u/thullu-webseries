@@ -145,6 +145,8 @@ useEffect(() => {
                     mediaInfo
                 );
 
+            request.autoplay = true;
+
             try {
 
                 console.log("Warming CDN...");

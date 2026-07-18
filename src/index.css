@@ -22,3 +22,13 @@ Arial,
 sans-serif;
 
 }
+
+google-cast-launcher {
+    display: block;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+
+    --connected-color: white;
+    --disconnected-color: white;
+}

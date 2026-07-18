@@ -162,9 +162,6 @@ useEffect(() => {
                 { url: poster }
             ];
 
-            const currentTime =
-                videoRef.current?.currentTime || 0;
-
             const request =
                 new window.chrome.cast.media.LoadRequest(
                     mediaInfo
@@ -200,8 +197,6 @@ useEffect(() => {
                 await session.loadMedia(
                     request
                 );
-
-                videoRef.current?.pause();
 
                 console.log(
                     "Cast success"

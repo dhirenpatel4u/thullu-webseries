@@ -6,6 +6,10 @@ import { registerSW } from "virtual:pwa-register";
 import App from "./App";
 import "./index.css";
 
+import { initializeCast } from "./utils/cast";
+
+initializeCast();
+
 // Register the service worker
 registerSW({
   immediate: true,

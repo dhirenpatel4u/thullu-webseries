@@ -97,6 +97,76 @@ export default function VideoPlayer({
 
   };
 
+useEffect(() => {
+    if (!window.cast || !episode) return;
+
+    const context =
+        cast.framework.CastContext.getInstance();
+
+    const handleCast = async (event) => {
+
+        if (
+            event.sessionState !==
+            cast.framework.SessionState
+                .SESSION_STARTED
+        ) {
+            return;
+        }
+
+        const session =
+            context.getCurrentSession();
+
+        if (!session) return;
+
+        const mediaInfo =
+            new chrome.cast.media.MediaInfo(
+                episode.url,
+                "video/mp4"
+            );
+
+        mediaInfo.metadata =
+            new chrome.cast.media.GenericMediaMetadata();
+
+        mediaInfo.metadata.title =
+            episode.episode;
+
+        mediaInfo.metadata.images = [
+            { url: poster }
+        ];
+
+        const request =
+            new chrome.cast.media.LoadRequest(
+                mediaInfo
+            );
+
+        try {
+            await session.loadMedia(request);
+        } catch (e) {
+            console.error(
+                "Cast failed:",
+                e
+            );
+        }
+    };
+
+    context.addEventListener(
+        cast.framework
+            .CastContextEventType
+            .SESSION_STATE_CHANGED,
+        handleCast
+    );
+
+    return () => {
+        context.removeEventListener(
+            cast.framework
+                .CastContextEventType
+                .SESSION_STATE_CHANGED,
+            handleCast
+        );
+    };
+}, [episode, poster]);
+  
+
   return (
     <div className="relative">
       <video

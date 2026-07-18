@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from "react";
 import { saveRecentlyPlayed, getRecentlyPlayed } from "../utils/recentlyPlayed";
-import { castVideo } from "../utils/cast";
 
 const placeholderTitle = (title) => {
   const words = title.trim().split(/\s+/);
@@ -115,25 +114,9 @@ export default function VideoPlayer({
         "
       />
 
-      <button
-        onClick={() =>
-          castVideo(
-            episode.url,
-            episode.episode,
-            poster
-          )
-        }
-        className="
-          mt-3
-          px-4
-          py-2
-          bg-blue-500
-          text-white
-          rounded-lg
-        "
-      >
-        Cast to TV
-      </button>
+      <div className="absolute top-3 right-3 z-10">
+        <google-cast-launcher />
+      </div>
     </div>
   );
 }

@@ -98,73 +98,106 @@ export default function VideoPlayer({
   };
 
 useEffect(() => {
-    if (!window.cast || !episode) return;
+    if (!episode) return;
 
-    const context =
-        cast.framework.CastContext.getInstance();
-
-    const handleCast = async (event) => {
-
+    const attachListener = () => {
         if (
-            event.sessionState !==
-            cast.framework.SessionState
-                .SESSION_STARTED
+            !window.cast ||
+            !window.cast.framework
         ) {
-            return;
+            return false;
         }
 
-        const session =
-            context.getCurrentSession();
+        const context =
+            cast.framework.CastContext.getInstance();
 
-        if (!session) return;
+        const handleCast = async (event) => {
+            if (
+                event.sessionState !==
+                cast.framework.SessionState.SESSION_STARTED
+            ) {
+                return;
+            }
 
-        const mediaInfo =
-            new chrome.cast.media.MediaInfo(
-                episode.url,
-                "video/mp4"
-            );
+            const session =
+                context.getCurrentSession();
 
-        mediaInfo.metadata =
-            new chrome.cast.media.GenericMediaMetadata();
+            if (!session) return;
 
-        mediaInfo.metadata.title =
-            episode.episode;
+            const mediaInfo =
+                new chrome.cast.media.MediaInfo(
+                    episode.url,
+                    "video/mp4"
+                );
 
-        mediaInfo.metadata.images = [
-            { url: poster }
-        ];
+            mediaInfo.metadata =
+                new chrome.cast.media.GenericMediaMetadata();
 
-        const request =
-            new chrome.cast.media.LoadRequest(
-                mediaInfo
-            );
+            mediaInfo.metadata.title =
+                episode.episode;
 
-        try {
-            await session.loadMedia(request);
-        } catch (e) {
-            console.error(
-                "Cast failed:",
-                e
-            );
-        }
-    };
+            mediaInfo.metadata.images = [
+                { url: poster }
+            ];
 
-    context.addEventListener(
-        cast.framework
-            .CastContextEventType
-            .SESSION_STATE_CHANGED,
-        handleCast
-    );
+            const request =
+                new chrome.cast.media.LoadRequest(
+                    mediaInfo
+                );
 
-    return () => {
-        context.removeEventListener(
-            cast.framework
-                .CastContextEventType
+            try {
+                await session.loadMedia(request);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        context.addEventListener(
+            cast.framework.CastContextEventType
                 .SESSION_STATE_CHANGED,
             handleCast
         );
+
+        return () => {
+            context.removeEventListener(
+                cast.framework.CastContextEventType
+                    .SESSION_STATE_CHANGED,
+                handleCast
+            );
+        };
     };
+
+    // SDK already loaded
+    if (attachListener()) {
+        return;
+    }
+
+    // Wait for SDK
+    const interval = setInterval(() => {
+        if (attachListener()) {
+            clearInterval(interval);
+        }
+    }, 500);
+
+    return () => clearInterval(interval);
+
 }, [episode, poster]);
+
+const [castReady, setCastReady] = useState(false);
+
+useEffect(() => {
+    const interval = setInterval(() => {
+        if (
+            window.cast &&
+            window.cast.framework
+        ) {
+            setCastReady(true);
+            clearInterval(interval);
+        }
+    }, 500);
+
+    return () => clearInterval(interval);
+}, []);
   
 
   return (
@@ -184,9 +217,11 @@ useEffect(() => {
         "
       />
 
-      <div className="absolute top-3 right-3 z-10">
-        <google-cast-launcher />
-      </div>
+      {castReady && (
+          <div className="absolute top-3 right-3 z-10">
+              <google-cast-launcher />
+          </div>
+      )}
     </div>
   );
 }

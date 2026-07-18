@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+
+body{
+
+background:#080808;
+
+color:white;
+
+font-family:
+Inter,
+Arial,
+sans-serif;
+
+}

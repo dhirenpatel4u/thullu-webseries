@@ -146,9 +146,28 @@ useEffect(() => {
                 );
 
             try {
+
+                console.log("Warming CDN...");
+
+                // Wake up CDN/cache
+                await fetch(episode.url, {
+                    method: "HEAD"
+                });
+
+                // Give CDN time to prepare
+                await new Promise(resolve =>
+                    setTimeout(resolve, 5000)
+                );
+
+                console.log("Sending to Chromecast...");
+
                 await session.loadMedia(request);
+
             } catch (e) {
-                console.error(e);
+                console.error(
+                    "Cast failed:",
+                    e
+                );
             }
         };
 

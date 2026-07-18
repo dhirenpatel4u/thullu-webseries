@@ -69,8 +69,21 @@ export default function RecentlyPlayed() {
     src={item.poster}
     alt={item.title}
     onError={(e) => {
-      e.target.onerror = null;
-      e.target.src = `https://placehold.co/600x400/D3D3D3/red?font=lora&text=${placeholderTitle(item.title)}`;
+      const img = e.currentTarget;
+      // Retry only once
+      if (!img.dataset.retried) {
+        img.dataset.retried = "true";
+        setTimeout(() => {
+          img.src =
+            `${item.poster}?retry=${Date.now()}`;
+        }, 1000);
+        return;
+      }
+      // Second failure -> placeholder
+      img.src =
+        `https://placehold.co/600x400/D3D3D3/red?font=lora&text=${placeholderTitle(
+          item.title
+        )}`;
     }}
     className="
       w-full

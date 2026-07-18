@@ -109,7 +109,7 @@ useEffect(() => {
         }
 
         const context =
-            cast.framework.CastContext.getInstance();
+            window.cast.framework.CastContext.getInstance();
 
         const handleCast = async (event) => {
 
@@ -121,10 +121,10 @@ useEffect(() => {
             // Handle both first connection and reconnects
             if (
                 event.sessionState !==
-                    cast.framework.SessionState
+                    window.cast.framework.SessionState
                         .SESSION_STARTED &&
                 event.sessionState !==
-                    cast.framework.SessionState
+                    window.cast.framework.SessionState
                         .SESSION_RESUMED
             ) {
                 return;
@@ -136,13 +136,13 @@ useEffect(() => {
             if (!session) return;
 
             const mediaInfo =
-                new chrome.cast.media.MediaInfo(
+                new window.chrome.cast.media.MediaInfo(
                     episode.url,
                     "video/mp4"
                 );
 
             mediaInfo.metadata =
-                new chrome.cast.media.GenericMediaMetadata();
+                new window.chrome.cast.media.GenericMediaMetadata();
 
             mediaInfo.metadata.title =
                 episode.episode;
@@ -152,7 +152,7 @@ useEffect(() => {
             ];
 
             const request =
-                new chrome.cast.media.LoadRequest(
+                new window.chrome.cast.media.LoadRequest(
                     mediaInfo
                 );
 
@@ -201,14 +201,14 @@ useEffect(() => {
         };
 
         context.addEventListener(
-            cast.framework.CastContextEventType
+            window.cast.framework.CastContextEventType
                 .SESSION_STATE_CHANGED,
             handleCast
         );
 
         return () => {
             context.removeEventListener(
-                cast.framework.CastContextEventType
+                window.cast.framework.CastContextEventType
                     .SESSION_STATE_CHANGED,
                 handleCast
             );

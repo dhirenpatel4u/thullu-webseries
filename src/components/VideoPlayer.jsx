@@ -126,7 +126,7 @@ useEffect(() => {
 
             const mediaInfo =
                 new chrome.cast.media.MediaInfo(
-                    episode.url,
+                    "https://www.w3schools.com/html/movie.mp4",
                     "video/mp4"
                 );
 

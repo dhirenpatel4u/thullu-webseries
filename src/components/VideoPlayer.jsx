@@ -97,6 +97,42 @@ export default function VideoPlayer({
 
   };
 
+const handleSeek = async () => {
+
+    if (
+        !window.cast ||
+        !window.cast.framework
+    ) {
+        return;
+    }
+
+    const session =
+        window.cast.framework
+            .CastContext
+            .getInstance()
+            .getCurrentSession();
+
+    if (!session) return;
+
+    const media =
+        session.getMediaSession();
+
+    if (!media) return;
+
+    const request =
+        new window.chrome.cast.media
+            .SeekRequest();
+
+    request.currentTime =
+        videoRef.current.currentTime;
+
+    request.resumeState =
+        window.chrome.cast.media
+            .ResumeState.PLAYBACK_START;
+
+    media.seek(request);
+};
+
 useEffect(() => {
     if (!episode) return;
 
@@ -275,6 +311,7 @@ useEffect(() => {
         controlsList="nodownload"
         preload="metadata"
         onTimeUpdate={handleTimeUpdate}
+        onSeeked={handleSeek}
         className="
           w-full
           rounded-xl

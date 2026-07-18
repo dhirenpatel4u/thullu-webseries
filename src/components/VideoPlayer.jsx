@@ -118,6 +118,17 @@ useEffect(() => {
                 event.sessionState
             );
 
+              // Chromecast disconnected
+            if (
+                event.sessionState ===
+                window.cast.framework
+                    .SessionState
+                    .SESSION_ENDED
+            ) {
+                videoRef.current?.play();
+                return;
+            }
+
             // Handle both first connection and reconnects
             if (
                 event.sessionState !==

@@ -112,9 +112,20 @@ useEffect(() => {
             cast.framework.CastContext.getInstance();
 
         const handleCast = async (event) => {
+
+            console.log(
+                "Session State:",
+                event.sessionState
+            );
+
+            // Handle both first connection and reconnects
             if (
                 event.sessionState !==
-                cast.framework.SessionState.SESSION_STARTED
+                    cast.framework.SessionState
+                        .SESSION_STARTED &&
+                event.sessionState !==
+                    cast.framework.SessionState
+                        .SESSION_RESUMED
             ) {
                 return;
             }
@@ -145,10 +156,47 @@ useEffect(() => {
                     mediaInfo
                 );
 
+            request.autoplay = true;
+
             try {
-                await session.loadMedia(request);
+
+                // Stop previous video if one exists
+                const media =
+                    session.getMediaSession();
+
+                if (media) {
+                    await media.stop();
+
+                    // Give Chromecast time
+                    await new Promise(
+                        resolve =>
+                            setTimeout(
+                                resolve,
+                                1000
+                            )
+                    );
+                }
+
+                console.log(
+                    "Casting:",
+                    episode.episode
+                );
+
+                await session.loadMedia(
+                    request
+                );
+
+                console.log(
+                    "Cast success"
+                );
+
             } catch (e) {
-                console.error(e);
+
+                console.error(
+                    "Cast failed:",
+                    e
+                );
+
             }
         };
 

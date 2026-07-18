@@ -171,7 +171,7 @@ useEffect(() => {
                 );
 
             request.autoplay = true;
-            request.currentTime = currentTime;
+
 
             try {
 

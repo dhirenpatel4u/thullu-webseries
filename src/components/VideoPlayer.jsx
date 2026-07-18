@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { saveRecentlyPlayed, getRecentlyPlayed } from "../utils/recentlyPlayed";
+import { castVideo } from "../utils/cast";
 
 const placeholderTitle = (title) => {
   const words = title.trim().split(/\s+/);
@@ -98,19 +99,41 @@ export default function VideoPlayer({
   };
 
   return (
-    <video
-      ref={videoRef}
-      src={episode.url}
-      poster={poster}
-      controls
-      controlsList="nodownload"
-      preload="metadata"
-      onTimeUpdate={handleTimeUpdate}
-      className="
-        w-full
-        rounded-xl
-        bg-black
-      "
-    />
+    <div className="relative">
+      <video
+        ref={videoRef}
+        src={episode.url}
+        poster={poster}
+        controls
+        controlsList="nodownload"
+        preload="metadata"
+        onTimeUpdate={handleTimeUpdate}
+        className="
+          w-full
+          rounded-xl
+          bg-black
+        "
+      />
+
+      <button
+        onClick={() =>
+          castVideo(
+            episode.url,
+            episode.episode,
+            poster
+          )
+        }
+        className="
+          mt-3
+          px-4
+          py-2
+          bg-blue-500
+          text-white
+          rounded-lg
+        "
+      >
+        Cast to TV
+      </button>
+    </div>
   );
 }

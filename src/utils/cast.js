@@ -1,4 +1,4 @@
-export const initializeCast = () => {
+export const initializeCast = (setReady) => {
     window.__onGCastApiAvailable = (available) => {
         if (!available) return;
 
@@ -8,5 +8,7 @@ export const initializeCast = () => {
             autoJoinPolicy:
                 chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
         });
+
+        setReady(true);
     };
 };

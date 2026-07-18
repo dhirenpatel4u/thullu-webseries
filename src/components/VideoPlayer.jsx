@@ -89,7 +89,7 @@ export default function VideoPlayer({
     saveRecentlyPlayed({
       id: showId,
       title: showTitle,
-      poster: poster,
+      poster: episode.poster,
       episodeIndex,
       episodeTitle: episode.episode,
       time: video.currentTime

@@ -53,7 +53,15 @@ export default function VideoPlayer({
   // Resume playback
   useEffect(() => {
 
+    if (isCasting) {
+        return;
+    }
+
     const video = videoRef.current;
+
+    if (!video) {
+        return;
+    }
 
     video.load();
 
@@ -81,7 +89,7 @@ export default function VideoPlayer({
       video.removeEventListener("loadedmetadata", playVideo);
     };
 
-  }, [episode, showId, episodeIndex]);
+  }, [episode, showId, episodeIndex, isCasting]);
 
   // Save every 5 seconds
   const handleTimeUpdate = () => {

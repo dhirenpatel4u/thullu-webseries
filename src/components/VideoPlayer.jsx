@@ -441,10 +441,16 @@ useEffect(() => {
                     {episode.episode}
                 </p>
 
-                <p>
-                    {Math.floor(castTime)}
-                    {" / "}
-                    {Math.floor(castDuration)}
+                <p className="
+                    text-sm
+                    bg-black/50
+                    px-3
+                    py-1
+                    rounded-full
+                ">
+                    {formatTime(castTime)}
+                    {" • "}
+                    {formatTime(castDuration)}
                 </p>
 
                 <input
@@ -511,3 +517,4 @@ useEffect(() => {
     </div>
   );
 }
+

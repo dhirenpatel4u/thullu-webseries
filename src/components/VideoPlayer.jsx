@@ -25,6 +25,7 @@ export default function VideoPlayer({
 }) {
 
   const videoRef = useRef();
+  const castPositionRef = useRef(0);
   const [poster, setPoster] = useState("");
   const [isCasting, setIsCasting] = useState(false);
   const [castTime, setCastTime] = useState(0);
@@ -167,7 +168,13 @@ useEffect(() => {
 
                 setIsCasting(false);
 
-                videoRef.current?.play();
+                if (videoRef.current) {
+
+                    videoRef.current.currentTime =
+                        castPositionRef.current;
+
+                    videoRef.current.play();
+                }
 
                 return;
             }
@@ -308,9 +315,13 @@ useEffect(() => {
 
         if (!media) return;
 
-        setCastTime(
-            media.getEstimatedTime()
-        );
+        const time =
+            media.getEstimatedTime();
+
+        setCastTime(time);
+
+        castPositionRef.current =
+            time;
 
         setCastDuration(
             media.media?.duration || 0

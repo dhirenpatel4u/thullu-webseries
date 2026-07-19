@@ -360,6 +360,11 @@ useEffect(() => {
         return;
     }
 
+    console.log(
+        "Switching TV to:",
+        episode.episode
+    );
+
     const session =
         window.cast.framework
             .CastContext
@@ -407,7 +412,7 @@ useEffect(() => {
         })
         .catch(console.error);
 
-}, [episode]);
+}, [episode, isCasting]);
 
 const [castReady, setCastReady] = useState(false);
 
@@ -425,7 +430,61 @@ useEffect(() => {
     return () => clearInterval(interval);
 }, []);
   
+  
+useEffect(() => {
 
+    if (
+        !window.cast ||
+        !window.cast.framework
+    ) {
+        return;
+    }
+
+    const context =
+        window.cast.framework
+            .CastContext
+            .getInstance();
+
+    const updateState = () => {
+
+        const state =
+            context.getSessionState();
+
+        setIsCasting(
+            state ===
+                window.cast.framework
+                    .SessionState
+                    .SESSION_STARTED ||
+            state ===
+                window.cast.framework
+                    .SessionState
+                    .SESSION_RESUMED
+        );
+    };
+
+    updateState();
+
+    context.addEventListener(
+        window.cast.framework
+            .CastContextEventType
+            .SESSION_STATE_CHANGED,
+        updateState
+    );
+
+    return () => {
+
+        context.removeEventListener(
+            window.cast.framework
+                .CastContextEventType
+                .SESSION_STATE_CHANGED,
+            updateState
+        );
+
+    };
+
+}, []);
+
+  
   return (
     <div className="relative">
 {

@@ -27,7 +27,7 @@ export default function VideoPlayer({
   const videoRef = useRef();
   const localPositionRef = useRef(0);
   const castPositionRef = useRef(0);
-  const previousEpisode = useRef(null);
+  const previousEpisode = useRef("");
   
   const [poster, setPoster] = useState("");
   const [isCasting, setIsCasting] = useState(false);
@@ -279,6 +279,9 @@ if (
 
                 await session.loadMedia(request);
 
+                previousEpisode.current =
+                    episode.url;
+
                 setIsCasting(true);
 
                 videoRef.current?.pause();
@@ -372,25 +375,27 @@ useEffect(() => {
         return;
     }
 
-    // First render
-    if (previousEpisode.current === null) {
+    // First mount while casting
+    if (
+        previousEpisode.current === ""
+    ) {
 
         previousEpisode.current =
             episode.url;
 
-        return;
-    }
-
-    // Same episode
-    if (
+    } else if (
         previousEpisode.current ===
         episode.url
     ) {
-        return;
-    }
 
-    previousEpisode.current =
-        episode.url;
+        return;
+
+    } else {
+
+        previousEpisode.current =
+            episode.url;
+
+    }
 
     console.log(
         "Switching TV to:",
@@ -408,10 +413,11 @@ useEffect(() => {
     }
 
     const mediaInfo =
-        new window.chrome.cast.media.MediaInfo(
-            episode.url,
-            "video/mp4"
-        );
+        new window.chrome.cast.media
+            .MediaInfo(
+                episode.url,
+                "video/mp4"
+            );
 
     mediaInfo.metadata =
         new window.chrome.cast.media
@@ -437,14 +443,13 @@ useEffect(() => {
             setCastTime(0);
 
             console.log(
-                "Switched TV to:",
-                episode.episode
+                "TV updated"
             );
 
         })
         .catch(console.error);
 
-}, [episode]);
+}, [episode, isCasting]);
 
 const [castReady, setCastReady] = useState(false);
 

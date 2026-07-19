@@ -27,6 +27,7 @@ export default function VideoPlayer({
   const videoRef = useRef();
   const localPositionRef = useRef(0);
   const castPositionRef = useRef(0);
+  const previousEpisode = useRef(null);
   
   const [poster, setPoster] = useState("");
   const [isCasting, setIsCasting] = useState(false);
@@ -371,6 +372,26 @@ useEffect(() => {
         return;
     }
 
+    // First render
+    if (previousEpisode.current === null) {
+
+        previousEpisode.current =
+            episode.url;
+
+        return;
+    }
+
+    // Same episode
+    if (
+        previousEpisode.current ===
+        episode.url
+    ) {
+        return;
+    }
+
+    previousEpisode.current =
+        episode.url;
+
     console.log(
         "Switching TV to:",
         episode.episode
@@ -423,7 +444,7 @@ useEffect(() => {
         })
         .catch(console.error);
 
-}, [episode, isCasting]);
+}, [episode]);
 
 const [castReady, setCastReady] = useState(false);
 

@@ -159,25 +159,35 @@ useEffect(() => {
             );
 
               // Chromecast disconnected
-            if (
-                event.sessionState ===
-                window.cast.framework
-                    .SessionState
-                    .SESSION_ENDED
-            ) {
+if (
+    event.sessionState ===
+    window.cast.framework
+        .SessionState
+        .SESSION_ENDED
+) {
 
-                setIsCasting(false);
+    setIsCasting(false);
 
-                if (videoRef.current) {
+    setTimeout(() => {
 
-                    videoRef.current.currentTime =
-                        castPositionRef.current;
+        if (!videoRef.current) {
+            return;
+        }
 
-                    videoRef.current.play();
-                }
+        console.log(
+            "Resume at:",
+            castPositionRef.current
+        );
 
-                return;
-            }
+        videoRef.current.currentTime =
+            castPositionRef.current;
+
+        videoRef.current.play();
+
+    }, 500);
+
+    return;
+}
 
             // Handle both first connection and reconnects
             if (

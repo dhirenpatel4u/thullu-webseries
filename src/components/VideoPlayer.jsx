@@ -309,7 +309,7 @@ useEffect(() => {
         if (!media) return;
 
         setCastTime(
-            media.currentTime || 0
+            media.getEstimatedTime()
         );
 
         setCastDuration(

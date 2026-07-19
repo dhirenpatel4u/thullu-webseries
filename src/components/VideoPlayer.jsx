@@ -355,6 +355,19 @@ useEffect(() => {
 
         castPositionRef.current =
             time;
+          // Save every 5 seconds
+        if (
+            Math.floor(time) % 5 === 0
+        ) {
+            saveRecentlyPlayed({
+                id: showId,
+                title: showTitle,
+                poster: episode.poster,
+                episodeIndex,
+                episodeTitle: episode.episode,
+                time
+            });
+        }
 
         setCastDuration(
             media.media?.duration || 0
@@ -364,7 +377,7 @@ useEffect(() => {
 
     return () => clearInterval(interval);
 
-}, [isCasting]);
+}, [isCasting, showId, showTitle, episode, episodeIndex]);
 
 useEffect(() => {
 

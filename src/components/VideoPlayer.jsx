@@ -25,7 +25,9 @@ export default function VideoPlayer({
 }) {
 
   const videoRef = useRef();
+  const localPositionRef = useRef(0);
   const castPositionRef = useRef(0);
+  
   const [poster, setPoster] = useState("");
   const [isCasting, setIsCasting] = useState(false);
   const [castTime, setCastTime] = useState(0);
@@ -95,6 +97,9 @@ export default function VideoPlayer({
   const handleTimeUpdate = () => {
 
     const video = videoRef.current;
+
+    localPositionRef.current =
+        video.currentTime;
 
     if (Math.floor(video.currentTime) % 5 !== 0) return;
 
@@ -231,7 +236,7 @@ if (
             ];
 
             const currentTime =
-              videoRef.current?.currentTime || 0;
+                  localPositionRef.current;
           
             const request =
                 new window.chrome.cast.media.LoadRequest(
@@ -239,6 +244,12 @@ if (
                 );
 
             request.autoplay = true;
+          
+            console.log(
+                "Cast starts at:",
+                currentTime
+            );
+          
             request.currentTime = currentTime;
 
             try {
@@ -586,7 +597,11 @@ useEffect(() => {
             controlsList="nodownload"
             preload="metadata"
             onTimeUpdate={handleTimeUpdate}
-            onSeeked={handleSeek}
+            onSeeked={() => {
+                localPositionRef.current =
+                    videoRef.current.currentTime;
+                    handleSeek();
+            }}
             className="
               w-full
               rounded-xl

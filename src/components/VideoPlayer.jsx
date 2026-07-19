@@ -26,6 +26,9 @@ export default function VideoPlayer({
 
   const videoRef = useRef();
   const [poster, setPoster] = useState("");
+  const [isCasting, setIsCasting] = useState(false);
+  const [castTime, setCastTime] = useState(0);
+  const [castDuration, setCastDuration] = useState(0);
 
   // Check poster image
   useEffect(() => {
@@ -161,7 +164,11 @@ useEffect(() => {
                     .SessionState
                     .SESSION_ENDED
             ) {
+
+                setIsCasting(false);
+
                 videoRef.current?.play();
+
                 return;
             }
 
@@ -233,12 +240,12 @@ useEffect(() => {
                     episode.episode
                 );
 
-                await session.loadMedia(
-                    request
-                );
+                await session.loadMedia(request);
+
+                setIsCasting(true);
 
                 videoRef.current?.pause();
-              
+
                 console.log(
                     "Cast success"
                 );
@@ -284,6 +291,95 @@ useEffect(() => {
 
 }, [episode, poster]);
 
+useEffect(() => {
+
+    if (!isCasting) return;
+
+    const interval = setInterval(() => {
+
+        const session =
+            window.cast.framework
+                .CastContext
+                .getInstance()
+                .getCurrentSession();
+
+        const media =
+            session?.getMediaSession();
+
+        if (!media) return;
+
+        setCastTime(
+            media.currentTime || 0
+        );
+
+        setCastDuration(
+            media.media?.duration || 0
+        );
+
+    }, 1000);
+
+    return () => clearInterval(interval);
+
+}, [isCasting]);
+
+useEffect(() => {
+
+    if (
+        !isCasting ||
+        !episode
+    ) {
+        return;
+    }
+
+    const session =
+        window.cast.framework
+            .CastContext
+            .getInstance()
+            .getCurrentSession();
+
+    if (!session) {
+        return;
+    }
+
+    const mediaInfo =
+        new window.chrome.cast.media.MediaInfo(
+            episode.url,
+            "video/mp4"
+        );
+
+    mediaInfo.metadata =
+        new window.chrome.cast.media
+            .GenericMediaMetadata();
+
+    mediaInfo.metadata.title =
+        episode.episode;
+
+    mediaInfo.metadata.images = [
+        { url: poster }
+    ];
+
+    const request =
+        new window.chrome.cast.media
+            .LoadRequest(mediaInfo);
+
+    request.autoplay = true;
+
+    session
+        .loadMedia(request)
+        .then(() => {
+
+            setCastTime(0);
+
+            console.log(
+                "Switched TV to:",
+                episode.episode
+            );
+
+        })
+        .catch(console.error);
+
+}, [episode]);
+
 const [castReady, setCastReady] = useState(false);
 
 useEffect(() => {
@@ -303,21 +399,109 @@ useEffect(() => {
 
   return (
     <div className="relative">
-      <video
-        ref={videoRef}
-        src={episode.url}
-        poster={poster}
-        controls
-        controlsList="nodownload"
-        preload="metadata"
-        onTimeUpdate={handleTimeUpdate}
-        onSeeked={handleSeek}
-        className="
-          w-full
-          rounded-xl
-          bg-black
-        "
-      />
+{
+    isCasting ? (
+
+        <div
+            className="
+                w-full
+                aspect-video
+                rounded-xl
+                overflow-hidden
+                bg-black
+                relative
+            "
+        >
+            <img
+                src={poster}
+                className="
+                    w-full
+                    h-full
+                    object-cover
+                    opacity-40
+                "
+            />
+
+            <div
+                className="
+                    absolute
+                    inset-0
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+                    gap-3
+                "
+            >
+                <h2 className="text-2xl">
+                    Casting to TV
+                </h2>
+
+                <p>
+                    {episode.episode}
+                </p>
+
+                <p>
+                    {Math.floor(castTime)}
+                    {" / "}
+                    {Math.floor(castDuration)}
+                </p>
+
+                <input
+                    type="range"
+                    min="0"
+                    max={castDuration}
+                    value={castTime}
+                    onChange={(e) => {
+
+                        const session =
+                            window.cast.framework
+                                .CastContext
+                                .getInstance()
+                                .getCurrentSession();
+
+                        const media =
+                            session?.getMediaSession();
+
+                        if (!media) return;
+
+                        const request =
+                            new window.chrome
+                                .cast.media
+                                .SeekRequest();
+
+                        request.currentTime =
+                            Number(
+                                e.target.value
+                            );
+
+                        media.seek(request);
+                    }}
+                    className="w-3/4"
+                />
+            </div>
+        </div>
+
+    ) : (
+
+        <video
+            ref={videoRef}
+            src={episode.url}
+            poster={poster}
+            controls
+            controlsList="nodownload"
+            preload="metadata"
+            onTimeUpdate={handleTimeUpdate}
+            onSeeked={handleSeek}
+            className="
+              w-full
+              rounded-xl
+              bg-black
+            "
+        />
+
+    )
+}
 
       {castReady && (
           <div className="absolute top-3 right-3 z-10">

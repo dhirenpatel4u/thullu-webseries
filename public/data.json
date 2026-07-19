@@ -46375,5 +46375,22 @@
                 "url": "https://video.maalcdn.com/Wow Entertainment/Zehar/Zehar Episode 3.mp4"
             }
         ]
+    },
+    {
+        "title": "Welcome to the Jungle",
+        "description": "Welcome to the Jungle",
+        "ott": "movie",
+        "year": "2026",
+        "models": [
+            "Akshay Kumar",
+            "Akshay Kumar"
+        ],
+        "episodes": [
+            {
+                "episode": "Welcome to the Jungle",
+                "poster": "https://media5.bollywoodhungama.in/wp-content/uploads/2023/09/Welcome-To-The-Jungle-4.jpg",
+                "url": "https://test.dhiren.workers.dev/1bb7iI8BYg8I8YrQze-skL84C0rIWrEMh"
+            }
+        ]
     }
 ]

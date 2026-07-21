@@ -32,3 +32,20 @@ google-cast-launcher {
     --connected-color: white;
     --disconnected-color: white;
 }
+@media (max-width:768px){
+
+    .plyr__volume{
+        display:none !important;
+    }
+
+    .plyr__controls{
+        gap:4px;
+    }
+    .plyr--full-ui input[type=range]{
+        color:#e50914;
+    }
+
+    .plyr__control--overlaid{
+        background:#e50914;
+    }
+}

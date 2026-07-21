@@ -65,32 +65,53 @@ export default function RecentlyPlayed() {
     hover:scale-105
   "
 >
-  <img
+<img
     src={item.poster}
     alt={item.title}
-    onError={(e) => {
-      const img = e.currentTarget;
-      // Retry only once
-      if (!img.dataset.retried) {
-        img.dataset.retried = "true";
-        setTimeout(() => {
-          img.src =
-            `${item.poster}?retry=${Date.now()}`;
-        }, 1000);
-        return;
-      }
-      // Second failure -> placeholder
-      img.src =
-        `https://placehold.co/600x400/D3D3D3/red?font=lora&text=${placeholderTitle(
-          item.title
-        )}`;
+    style={{ opacity: 0 }}
+
+    onLoad={(e) => {
+        e.currentTarget.style.opacity = 1;
     }}
+
+    onError={(e) => {
+
+        const img = e.currentTarget;
+
+        img.style.opacity = 0;
+
+        // Retry only once
+        if (!img.dataset.retried) {
+
+            img.dataset.retried = "true";
+
+            setTimeout(() => {
+
+                img.src =
+                    `${item.poster}?retry=${Date.now()}`;
+
+            }, 1000);
+
+            return;
+        }
+
+        // Second failure -> placeholder
+        img.src =
+            `https://placehold.co/600x400/D3D3D3/red?font=lora&text=${placeholderTitle(
+                item.title
+            )}`;
+
+        img.style.opacity = 1;
+    }}
+
     className="
       w-full
       h-[180px]
       object-cover
+      transition-opacity
+      duration-200
     "
-  />
+/>
 
   <div className="p-3">
     <h3 className="font-semibold truncate">

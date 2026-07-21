@@ -678,19 +678,22 @@ const showControls = () => {
   
   return (
     <div className="relative">
-{
-    isCasting ? (
 
-        <div
-            className="
-                w-full
-                aspect-video
-                rounded-xl
-                overflow-hidden
-                bg-black
-                relative
-            "
-        >
+      
+<div
+    className="
+        w-full
+        aspect-video
+        rounded-xl
+        overflow-hidden
+        bg-black
+        relative
+    "
+>
+
+    {
+        isCasting ? (
+
             <img
                 src={poster}
                 className="
@@ -701,223 +704,262 @@ const showControls = () => {
                 "
             />
 
+        ) : (
+
+            <video
+                ref={videoRef}
+                src={episode.url}
+                poster={poster}
+                controls={false}
+                onMouseMove={showControls}
+                onClick={togglePlay}
+                controlsList="nodownload"
+                preload="metadata"
+                onTimeUpdate={handleTimeUpdate}
+                onSeeked={() => {
+
+                    localPositionRef.current =
+                        videoRef.current.currentTime;
+
+                    handleSeek();
+
+                }}
+                className="
+                    w-full
+                    h-full
+                    object-cover
+                "
+            />
+
+        )
+    }
+
+    {
+        showUI && (
+
             <div
                 className="
                     absolute
                     inset-0
+                    z-10
                     flex
                     flex-col
-                    items-center
-                    justify-center
-                    gap-3
-                "
-            >
-                <h2 className="text-2xl">
-                    Casting to TV
-                </h2>
-
-                <p>
-                    {episode.episode}
-                </p>
-
-                <p className="
-                    text-sm
-                    bg-black/50
-                    px-3
-                    py-1
-                    rounded-full
-                ">
-                    {formatTime(castTime)}
-                    {" • "}
-                    {formatTime(castDuration)}
-                </p>
-
-                <input
-                    type="range"
-                    min="0"
-                    max={castDuration}
-                    value={castTime}
-                    onChange={(e) => {
-
-                        const session =
-                            window.cast.framework
-                                .CastContext
-                                .getInstance()
-                                .getCurrentSession();
-
-                        const media =
-                            session?.getMediaSession();
-
-                        if (!media) return;
-
-                        const request =
-                            new window.chrome
-                                .cast.media
-                                .SeekRequest();
-
-                        request.currentTime =
-                            Number(
-                                e.target.value
-                            );
-
-                        media.seek(request);
-                    }}
-                    className="w-3/4"
-                />
-            </div>
-        </div>
-
-    ) : (
-
-        <video
-            ref={videoRef}
-            src={episode.url}
-            poster={poster}
-            controls={false}
-            onMouseMove={showControls}
-            controlsList="nodownload"
-            preload="metadata"
-            onTimeUpdate={handleTimeUpdate}
-            onSeeked={() => {
-                localPositionRef.current =
-                    videoRef.current.currentTime;
-                    handleSeek();
-            }}
-            className="
-              w-full
-              rounded-xl
-              bg-black
-            "
-        />
-
-
-    )
-}
-
-{
-    !isCasting &&
-    showUI && (
-
-        <div
-            className="
-                absolute
-                inset-0
-                z-10
-                flex
-                flex-col
-                justify-between
-                bg-gradient-to-t
-                from-black/90
-                via-transparent
-                to-black/70
-            "
-        >
-
-            {/* Top */}
-
-            <div
-                className="
-                    flex
                     justify-between
-                    p-5
-                "
-            >
-                <div>
-
-                    <h2 className="text-xl font-bold">
-                        {showTitle}
-                    </h2>
-
-                    <p>
-                        {episode.episode}
-                    </p>
-
-                </div>
-            </div>
-
-
-            {/* Center */}
-
-            <div
-                className="
-                    flex
-                    justify-center
-                    items-center
+                    bg-gradient-to-t
+                    from-black/90
+                    via-transparent
+                    to-black/70
                 "
             >
 
-                <button
-                    onClick={togglePlay}
-                    className="
-                        text-7xl
-                        bg-black/50
-                        w-24
-                        h-24
-                        rounded-full
-                    "
-                >
-                    {
-                        videoRef.current
-                            ?.paused
-                            ? "▶"
-                            : "❚❚"
-                    }
-                </button>
-
-            </div>
-
-
-            {/* Bottom */}
-
-            <div className="p-5">
-
-                <input
-                    type="range"
-                    min="0"
-                    max={duration}
-                    value={currentTime}
-                    onChange={(e) => {
-
-                        videoRef.current
-                            .currentTime =
-                                Number(
-                                    e.target.value
-                                );
-
-                    }}
-                    className="
-                        w-full
-                    "
-                />
+                {/* TOP */}
 
                 <div
                     className="
                         flex
                         justify-between
-                        mt-2
-                        text-sm
+                        p-5
+                    "
+                >
+                    <div>
+
+                        <h2 className="text-xl font-bold">
+                            {showTitle}
+                        </h2>
+
+                        <p>
+                            {episode.episode}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                {/* CENTER */}
+
+                <div
+                    className="
+                        flex
+                        justify-center
+                        items-center
                     "
                 >
 
-                    <span>
-                        {formatTime(
-                            currentTime
-                        )}
-                    </span>
+                    {
+                        isCasting ? (
 
-                    <span>
-                        {formatTime(
-                            duration
-                        )}
-                    </span>
+                            <div
+                                className="
+                                    text-center
+                                "
+                            >
+                                <h2 className="text-3xl">
+                                    Casting to TV
+                                </h2>
+
+                                <p>
+                                    {
+                                        formatTime(
+                                            castTime
+                                        )
+                                    }
+
+                                    {" • "}
+
+                                    {
+                                        formatTime(
+                                            castDuration
+                                        )
+                                    }
+                                </p>
+
+                            </div>
+
+                        ) : (
+
+                            <button
+                                onClick={
+                                    togglePlay
+                                }
+                                className="
+                                    text-7xl
+                                    bg-black/50
+                                    w-24
+                                    h-24
+                                    rounded-full
+                                "
+                            >
+                                {
+                                    videoRef.current
+                                        ?.paused
+                                        ? "▶"
+                                        : "❚❚"
+                                }
+                            </button>
+
+                        )
+                    }
+
+                </div>
+
+
+                {/* BOTTOM */}
+
+                <div className="p-5">
+
+                    <input
+                        type="range"
+                        min="0"
+                        max={
+                            isCasting
+                                ? castDuration
+                                : duration
+                        }
+                        value={
+                            isCasting
+                                ? castTime
+                                : currentTime
+                        }
+                        onChange={(e) => {
+
+                            if (
+                                isCasting
+                            ) {
+
+                                const media =
+                                    window.cast
+                                        .framework
+                                        .CastContext
+                                        .getInstance()
+                                        .getCurrentSession()
+                                        ?.getMediaSession();
+
+                                if (
+                                    !media
+                                ) {
+                                    return;
+                                }
+
+                                const request =
+                                    new window
+                                        .chrome
+                                        .cast
+                                        .media
+                                        .SeekRequest();
+
+                                request.currentTime =
+                                    Number(
+                                        e.target
+                                            .value
+                                    );
+
+                                media.seek(
+                                    request
+                                );
+
+                            } else {
+
+                                videoRef
+                                    .current
+                                    .currentTime =
+                                        Number(
+                                            e
+                                                .target
+                                                .value
+                                        );
+
+                            }
+
+                        }}
+                        className="
+                            w-full
+                        "
+                    />
+
+                    <div
+                        className="
+                            flex
+                            justify-between
+                            text-sm
+                            mt-2
+                        "
+                    >
+
+                        <span>
+
+                            {
+                                formatTime(
+                                    isCasting
+                                        ? castTime
+                                        : currentTime
+                                )
+                            }
+
+                        </span>
+
+                        <span>
+
+                            {
+                                formatTime(
+                                    isCasting
+                                        ? castDuration
+                                        : duration
+                                )
+                            }
+
+                        </span>
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
-    )
-}
+        )
+    }
+
+</div>
       
 <div className="absolute top-3 right-3 z-20 flex gap-2">
 

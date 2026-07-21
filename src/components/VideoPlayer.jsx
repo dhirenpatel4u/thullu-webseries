@@ -33,6 +33,8 @@ export default function VideoPlayer({
   const [isCasting, setIsCasting] = useState(false);
   const [castTime, setCastTime] = useState(0);
   const [castDuration, setCastDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showEpisodes, setShowEpisodes] = useState(false);
 
   // Check poster image
   useEffect(() => {
@@ -534,6 +536,75 @@ useEffect(() => {
 
 }, []);
 
+useEffect(() => {
+
+    const handle =
+        (e) => {
+
+            if (
+                !videoRef.current ||
+                isCasting
+            ) {
+                return;
+            }
+
+            if (
+                e.key ===
+                "ArrowLeft"
+            ) {
+
+                videoRef.current
+                    .currentTime -= 10;
+            }
+
+            if (
+                e.key ===
+                "ArrowRight"
+            ) {
+
+                videoRef.current
+                    .currentTime += 10;
+            }
+        };
+
+    window.addEventListener(
+        "keydown",
+        handle
+    );
+
+    return () => {
+
+        window.removeEventListener(
+            "keydown",
+            handle
+        );
+
+    };
+
+}, [isCasting]);
+
+const toggleFullscreen = () => {
+
+    const container =
+        videoRef.current?.parentElement;
+
+    if (
+        !document.fullscreenElement
+    ) {
+
+        container?.requestFullscreen();
+
+        setIsFullscreen(true);
+
+    } else {
+
+        document.exitFullscreen();
+
+        setIsFullscreen(false);
+
+    }
+};
+
   
   return (
     <div className="relative">
@@ -651,11 +722,74 @@ useEffect(() => {
     )
 }
 
-      {castReady && (
-          <div className="absolute top-3 right-3 z-10">
-              <google-cast-launcher />
-          </div>
-      )}
+<div className="absolute top-3 right-3 z-20 flex gap-2">
+
+    <button
+        onClick={() =>
+            setShowEpisodes(
+                !showEpisodes
+            )
+        }
+        className="
+            bg-black/60
+            px-3
+            py-2
+            rounded-lg
+        "
+    >
+        Episodes
+    </button>
+
+    <button
+        onClick={toggleFullscreen}
+        className="
+            bg-black/60
+            px-3
+            py-2
+            rounded-lg
+        "
+    >
+        ⛶
+    </button>
+
+    {
+        castReady &&
+        <google-cast-launcher />
+    }
+
+</div>
+
+{
+    showEpisodes && (
+
+        <div
+            className="
+                absolute
+                top-0
+                right-0
+                h-full
+                w-80
+                bg-black/70
+                backdrop-blur-md
+                overflow-y-auto
+                z-50
+            "
+        >
+
+            <h2 className="p-4">
+                Episodes
+            </h2>
+
+            <p className="px-4 pb-3">
+                Pass episodes from
+                parent component.
+            </p>
+
+        </div>
+
+    )
+}
+      
     </div>
   );
 }

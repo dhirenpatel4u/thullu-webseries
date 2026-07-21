@@ -18,12 +18,10 @@ const placeholderTitle = (title) => {
 };
 
 export default function VideoPlayer({
-    episode,
-    showId,
-    showTitle,
-    episodeIndex,
-    episodes,
-    onEpisodeSelect
+  episode,
+  showId,
+  showTitle,
+  episodeIndex
 }) {
 
   const videoRef = useRef();
@@ -35,15 +33,6 @@ export default function VideoPlayer({
   const [isCasting, setIsCasting] = useState(false);
   const [castTime, setCastTime] = useState(0);
   const [castDuration, setCastDuration] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showEpisodes, setShowEpisodes] = useState(false);
-  const [showUI, setShowUI] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isPaused, setIsPaused] = useState(true);
-  const [isBuffering, setIsBuffering] = useState(false);
-  const [buffered, setBuffered] = useState(0);
-  const hideTimer = useRef();
 
   // Check poster image
   useEffect(() => {
@@ -344,64 +333,6 @@ if (
 
 useEffect(() => {
 
-    const video = videoRef.current;
-
-    if (!video) return;
-
-    const start = () =>
-        setIsBuffering(true);
-
-    const stop = () =>
-        setIsBuffering(false);
-
-    video.addEventListener(
-        "waiting",
-        start
-    );
-
-    video.addEventListener(
-        "stalled",
-        start
-    );
-
-    video.addEventListener(
-        "playing",
-        stop
-    );
-
-    video.addEventListener(
-        "canplay",
-        stop
-    );
-
-    return () => {
-
-        video.removeEventListener(
-            "waiting",
-            start
-        );
-
-        video.removeEventListener(
-            "stalled",
-            start
-        );
-
-        video.removeEventListener(
-            "playing",
-            stop
-        );
-
-        video.removeEventListener(
-            "canplay",
-            stop
-        );
-
-    };
-
-}, [episode]);
-
-useEffect(() => {
-
     if (!isCasting) return;
 
     const interval = setInterval(() => {
@@ -603,200 +534,22 @@ useEffect(() => {
 
 }, []);
 
-useEffect(() => {
-
-    const handle =
-        (e) => {
-
-            if (
-                !videoRef.current ||
-                isCasting
-            ) {
-                return;
-            }
-
-            if (
-                e.key ===
-                "ArrowLeft"
-            ) {
-
-                videoRef.current
-                    .currentTime -= 10;
-            }
-
-            if (
-                e.key ===
-                "ArrowRight"
-            ) {
-
-                videoRef.current
-                    .currentTime += 10;
-            }
-        };
-
-    window.addEventListener(
-        "keydown",
-        handle
-    );
-
-    return () => {
-
-        window.removeEventListener(
-            "keydown",
-            handle
-        );
-
-    };
-
-}, [isCasting]);
-
-useEffect(() => {
-
-    const video =
-        videoRef.current;
-
-    if (!video) return;
-
-const update = () => {
-    setCurrentTime(video.currentTime);
-    setDuration(video.duration || 0);
-
-    if (video.buffered.length > 0) {
-        setBuffered(
-            (
-                video.buffered.end(
-                    video.buffered.length - 1
-                ) /
-                video.duration
-            ) * 100
-        );
-    }
-};
-
-    video.addEventListener(
-        "timeupdate",
-        update
-    );
-
-    return () => {
-
-        video.removeEventListener(
-            "timeupdate",
-            update
-        );
-    };
-
-}, [episode]);
-
-const toggleFullscreen = () => {
-
-    const container =
-        videoRef.current?.parentElement;
-
-    if (
-        !document.fullscreenElement
-    ) {
-
-        container?.requestFullscreen();
-
-        setIsFullscreen(true);
-
-    } else {
-
-        document.exitFullscreen();
-
-        setIsFullscreen(false);
-
-    }
-};
-
-const togglePlay = () => {
-
-    const video = videoRef.current;
-
-    if (!video) return;
-
-    if (video.paused) {
-        video.play();
-    } else {
-        video.pause();
-    }
-
-    showControls();
-};
-
-const showControls = () => {
-
-    setShowUI(true);
-
-    clearTimeout(
-        hideTimer.current
-    );
-
-hideTimer.current =
-    setTimeout(() => {
-
-        if (
-            !videoRef.current?.paused
-        ) {
-            setShowUI(false);
-        }
-
-    },3000);
-};
-
   
   return (
     <div className="relative">
-
-      
-<div
-    className="
-        w-full
-        aspect-video
-        rounded-xl
-        overflow-hidden
-        bg-black
-        relative
-    "
->
-
 {
-    isBuffering &&
-    !isCasting && (
+    isCasting ? (
 
         <div
             className="
-                absolute
-                inset-0
-                z-50
-                flex
-                items-center
-                justify-center
-                pointer-events-none
+                w-full
+                aspect-video
+                rounded-xl
+                overflow-hidden
+                bg-black
+                relative
             "
         >
-
-            <div
-                className="
-                    w-10
-                    h-10
-                    border-4
-                    border-white/20
-                    border-t-white
-                    rounded-full
-                    animate-spin
-                "
-            />
-
-        </div>
-
-    )
-}
-
-    {
-        isCasting ? (
-
             <img
                 src={poster}
                 className="
@@ -807,417 +560,102 @@ hideTimer.current =
                 "
             />
 
-        ) : (
-
-            <video
-                ref={videoRef}
-                src={episode.url}
-                poster={poster}
-                controls={false}
-                onMouseMove={showControls}
-                onClick={togglePlay}
-                onPlay={() => setIsPaused(false)}
-                onPause={() => setIsPaused(true)}
-                onWaiting={() => setIsBuffering(true)}
-                onPlaying={() => setIsBuffering(false)}
-                controlsList="nodownload"
-                preload="metadata"
-                onTimeUpdate={handleTimeUpdate}
-                onSeeked={() => {
-
-                    localPositionRef.current =
-                        videoRef.current.currentTime;
-
-                    handleSeek();
-
-                }}
-                className="
-                    w-full
-                    h-full
-                    object-cover
-                "
-            />
-
-        )
-    }
-
-    {
-        showUI && (
-
             <div
                 className="
                     absolute
                     inset-0
-                    z-10
                     flex
                     flex-col
-                    justify-between
-                    bg-gradient-to-t
-                    from-black/90
-                    via-transparent
-                    to-black/70
+                    items-center
+                    justify-center
+                    gap-3
                 "
             >
+                <h2 className="text-2xl">
+                    Casting to TV
+                </h2>
 
-                {/* TOP */}
+                <p>
+                    {episode.episode}
+                </p>
 
-                <div
-                    className="
-                        flex
-                        justify-between
-                        p-5
-                    "
-                >
-                    <div>
+                <p className="
+                    text-sm
+                    bg-black/50
+                    px-3
+                    py-1
+                    rounded-full
+                ">
+                    {formatTime(castTime)}
+                    {" • "}
+                    {formatTime(castDuration)}
+                </p>
 
-                        <h2 className="text-xl font-bold">
-                            {showTitle}
-                        </h2>
+                <input
+                    type="range"
+                    min="0"
+                    max={castDuration}
+                    value={castTime}
+                    onChange={(e) => {
 
-                        <p>
-                            {episode.episode}
-                        </p>
+                        const session =
+                            window.cast.framework
+                                .CastContext
+                                .getInstance()
+                                .getCurrentSession();
 
-                    </div>
+                        const media =
+                            session?.getMediaSession();
 
-                </div>
+                        if (!media) return;
 
+                        const request =
+                            new window.chrome
+                                .cast.media
+                                .SeekRequest();
 
-                {/* CENTER */}
+                        request.currentTime =
+                            Number(
+                                e.target.value
+                            );
 
-                <div
-                    className="
-                        flex
-                        justify-center
-                        items-center
-                    "
-                >
-
-                    {
-                        isCasting ? (
-
-                            <div
-                                className="
-                                    text-center
-                                "
-                            >
-                                <h2 className="text-3xl">
-                                    Casting to TV
-                                </h2>
-
-                                <p>
-                                    {
-                                        formatTime(
-                                            castTime
-                                        )
-                                    }
-
-                                    {" • "}
-
-                                    {
-                                        formatTime(
-                                            castDuration
-                                        )
-                                    }
-                                </p>
-
-                            </div>
-
-                        ) : (
-
-                            <button
-                                onClick={
-                                    togglePlay
-                                }
-                                className="
-                                    text-4xl
-                                    bg-black/60
-                                    backdrop-blur-md
-                                    w-16
-                                    h-16
-                                    md:w-20
-                                    md:h-20
-                                    rounded-full
-                                    flex
-                                    items-center
-                                    justify-center
-                                    transition
-                                  hover:scale-110
-                                "
-                            >
-                                {
-                                    videoRef.current?.paused
-                                        ? "▶"
-                                        : "❚❚"
-                                }
-                            </button>
-
-                        )
-                    }
-
-                </div>
-
-
-                {/* BOTTOM */}
-
-                <div className="px-4 pb-4 pt-2 md:p-5 safe-bottom">
-
-<div className="relative w-full h-2">
-
-    {/* Buffer */}
-    <div
-        className="
-            absolute
-            inset-0
-            bg-white/20
-            rounded-full
-        "
-    />
-
-    <div
-        className="
-            absolute
-            left-0
-            top-0
-            h-2
-            bg-white/40
-            rounded-full
-        "
-        style={{
-            width: `${buffered}%`
-        }}
-    />
-
-    {/* Played */}
-    <div
-        className="
-            absolute
-            left-0
-            top-0
-            h-2
-            bg-red-600
-            rounded-full
-        "
-        style={{
-            width: `${
-                (
-                    (
-                        isCasting
-                            ? castTime
-                            : currentTime
-                    ) /
-                    (
-                        isCasting
-                            ? castDuration
-                            : duration
-                    )
-                ) * 100
-            }%`
-        }}
-    />
-
-    <input
-        type="range"
-        min="0"
-        max={
-            isCasting
-                ? castDuration
-                : duration
-        }
-        value={
-            isCasting
-                ? castTime
-                : currentTime
-        }
-      
-onChange={(e) => {
-
-    if (isCasting) {
-
-        const media =
-            window.cast.framework
-                .CastContext
-                .getInstance()
-                .getCurrentSession()
-                ?.getMediaSession();
-
-        if (!media) return;
-
-        const request =
-            new window.chrome.cast.media
-                .SeekRequest();
-
-        request.currentTime =
-            Number(e.target.value);
-
-        media.seek(request);
-
-    } else {
-
-        videoRef.current.currentTime =
-            Number(e.target.value);
-
-    }
-
-}}
-        className="
-            absolute
-            inset-0
-            opacity-0
-            cursor-pointer
-            w-full
-        "
-    />
-
-</div>
-
-                    <div
-                        className="
-                            flex
-                            justify-between
-                            text-sm
-                            mt-2
-                        "
-                    >
-
-                        <span>
-
-                            {
-                                formatTime(
-                                    isCasting
-                                        ? castTime
-                                        : currentTime
-                                )
-                            }
-
-                        </span>
-
-                        <span>
-
-                            {
-                                formatTime(
-                                    isCasting
-                                        ? castDuration
-                                        : duration
-                                )
-                            }
-
-                        </span>
-
-                    </div>
-
-                </div>
-
+                        media.seek(request);
+                    }}
+                    className="w-3/4"
+                />
             </div>
-
-        )
-    }
-
-</div>
-      
-<div className="absolute top-3 right-3 z-20 flex gap-2">
-
-    <button
-        onClick={() =>
-            setShowEpisodes(
-                !showEpisodes
-            )
-        }
-        className="
-            bg-black/60
-            px-3
-            py-2
-            rounded-lg
-        "
-    >
-        Episodes
-    </button>
-
-    <button
-        onClick={toggleFullscreen}
-        className="
-            bg-black/60
-            px-3
-            py-2
-            rounded-lg
-        "
-    >
-        ⛶
-    </button>
-
-    {
-        castReady &&
-        <google-cast-launcher />
-    }
-
-</div>
-
-{
-    showEpisodes && (
-
-        <div
-            className="
-                absolute
-                top-0
-                right-0
-                h-full
-                w-80
-                bg-black/70
-                backdrop-blur-md
-                overflow-y-auto
-                z-50
-            "
-        >
-
-            <h2 className="p-4">
-                Episodes
-            </h2>
-
-            {
-                episodes?.map(
-                    (
-                        ep,
-                        index
-                    ) => (
-
-                        <button
-                            key={index}
-                            className={`
-                                block
-                                w-full
-                                p-4
-                                text-left
-                                hover:bg-white/10
-                                ${
-                                    index ===
-                                    episodeIndex
-                                        ? "bg-white/10"
-                                        : ""
-                                }
-                            `}
-                            onClick={() => {
-
-                                onEpisodeSelect(
-                                    ep,
-                                    index
-                                );
-
-                                setShowEpisodes(
-                                    false
-                                );
-                            }}
-                        >
-                            {ep.episode}
-                        </button>
-
-                    )
-                )
-            }
-
         </div>
+
+    ) : (
+
+        <video
+            ref={videoRef}
+            src={episode.url}
+            poster={poster}
+            controls
+            controlsList="nodownload"
+            preload="metadata"
+            onTimeUpdate={handleTimeUpdate}
+            onSeeked={() => {
+                localPositionRef.current =
+                    videoRef.current.currentTime;
+                    handleSeek();
+            }}
+            className="
+              w-full
+              rounded-xl
+              bg-black
+            "
+        />
+
     )
 }
-      
+
+      {castReady && (
+          <div className="absolute top-3 right-3 z-10">
+              <google-cast-launcher />
+          </div>
+      )}
     </div>
   );
 }

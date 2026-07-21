@@ -73,10 +73,11 @@ return (
 <div className="md:col-span-2">
 
 <VideoPlayer
-  episode={selectedEpisode}
-  showId={show.id}
-  showTitle={show.title}
-  episodeIndex={selectedIndex}
+    episode={selectedEpisode}
+    showId={show.id}
+    showTitle={show.title}
+    episodeIndex={selectedIndex}
+    episodes={show.episodes}
 />
 
 

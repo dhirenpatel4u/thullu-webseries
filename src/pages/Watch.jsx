@@ -78,6 +78,10 @@ return (
     showTitle={show.title}
     episodeIndex={selectedIndex}
     episodes={show.episodes}
+    onEpisodeSelect={(ep, index) => {
+        setSelectedEpisode(ep);
+        setSelectedIndex(index);
+    }}
 />
 
 

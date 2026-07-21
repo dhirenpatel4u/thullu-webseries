@@ -41,6 +41,7 @@ export default function VideoPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [buffered, setBuffered] = useState(0);
   const hideTimer = useRef();
 
   // Check poster image
@@ -655,16 +656,21 @@ useEffect(() => {
 
     if (!video) return;
 
-    const update = () => {
+const update = () => {
+    setCurrentTime(video.currentTime);
+    setDuration(video.duration || 0);
 
-        setCurrentTime(
-            video.currentTime
+    if (video.buffered.length > 0) {
+        setBuffered(
+            (
+                video.buffered.end(
+                    video.buffered.length - 1
+                ) /
+                video.duration
+            ) * 100
         );
-
-        setDuration(
-            video.duration || 0
-        );
-    };
+    }
+};
 
     video.addEventListener(
         "timeupdate",
@@ -726,12 +732,16 @@ const showControls = () => {
         hideTimer.current
     );
 
-    hideTimer.current =
-        setTimeout(() => {
+hideTimer.current =
+    setTimeout(() => {
 
+        if (
+            !videoRef.current?.paused
+        ) {
             setShowUI(false);
+        }
 
-        }, 3000);
+    },3000);
 };
 
   
@@ -948,74 +958,84 @@ const showControls = () => {
 
                 <div className="px-4 pb-4 pt-2 md:p-5 safe-bottom">
 
-                    <input
-                        type="range"
-                        min="0"
-                        max={
-                            isCasting
-                                ? castDuration
-                                : duration
-                        }
-                        value={
-                            isCasting
-                                ? castTime
-                                : currentTime
-                        }
-                        onChange={(e) => {
+<div className="relative w-full h-2">
 
-                            if (
-                                isCasting
-                            ) {
+    {/* Buffer */}
+    <div
+        className="
+            absolute
+            inset-0
+            bg-white/20
+            rounded-full
+        "
+    />
 
-                                const media =
-                                    window.cast
-                                        .framework
-                                        .CastContext
-                                        .getInstance()
-                                        .getCurrentSession()
-                                        ?.getMediaSession();
+    <div
+        className="
+            absolute
+            left-0
+            top-0
+            h-2
+            bg-white/40
+            rounded-full
+        "
+        style={{
+            width: `${buffered}%`
+        }}
+    />
 
-                                if (
-                                    !media
-                                ) {
-                                    return;
-                                }
+    {/* Played */}
+    <div
+        className="
+            absolute
+            left-0
+            top-0
+            h-2
+            bg-red-600
+            rounded-full
+        "
+        style={{
+            width: `${
+                (
+                    (
+                        isCasting
+                            ? castTime
+                            : currentTime
+                    ) /
+                    (
+                        isCasting
+                            ? castDuration
+                            : duration
+                    )
+                ) * 100
+            }%`
+        }}
+    />
 
-                                const request =
-                                    new window
-                                        .chrome
-                                        .cast
-                                        .media
-                                        .SeekRequest();
+    <input
+        type="range"
+        min="0"
+        max={
+            isCasting
+                ? castDuration
+                : duration
+        }
+        value={
+            isCasting
+                ? castTime
+                : currentTime
+        }
+        onChange={...}
+        className="
+            absolute
+            inset-0
+            opacity-0
+            cursor-pointer
+            w-full
+        "
+    />
 
-                                request.currentTime =
-                                    Number(
-                                        e.target
-                                            .value
-                                    );
-
-                                media.seek(
-                                    request
-                                );
-
-                            } else {
-
-                                videoRef
-                                    .current
-                                    .currentTime =
-                                        Number(
-                                            e
-                                                .target
-                                                .value
-                                        );
-
-                            }
-
-                        }}
-                        className="
-                            w-full
-                        "
-                    />
+</div>
 
                     <div
                         className="

@@ -40,6 +40,7 @@ export default function VideoPlayer({
   const [showUI, setShowUI] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(false);
   const hideTimer = useRef();
 
   // Check poster image
@@ -338,6 +339,64 @@ if (
     return () => clearInterval(interval);
 
 }, [episode, poster]);
+
+useEffect(() => {
+
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    const start = () =>
+        setIsBuffering(true);
+
+    const stop = () =>
+        setIsBuffering(false);
+
+    video.addEventListener(
+        "waiting",
+        start
+    );
+
+    video.addEventListener(
+        "stalled",
+        start
+    );
+
+    video.addEventListener(
+        "playing",
+        stop
+    );
+
+    video.addEventListener(
+        "canplay",
+        stop
+    );
+
+    return () => {
+
+        video.removeEventListener(
+            "waiting",
+            start
+        );
+
+        video.removeEventListener(
+            "stalled",
+            start
+        );
+
+        video.removeEventListener(
+            "playing",
+            stop
+        );
+
+        video.removeEventListener(
+            "canplay",
+            stop
+        );
+
+    };
+
+}, [episode]);
 
 useEffect(() => {
 
@@ -691,6 +750,39 @@ const showControls = () => {
     "
 >
 
+{
+    isBuffering &&
+    !isCasting && (
+
+        <div
+            className="
+                absolute
+                inset-0
+                z-50
+                flex
+                items-center
+                justify-center
+                pointer-events-none
+            "
+        >
+
+            <div
+                className="
+                    w-10
+                    h-10
+                    border-4
+                    border-white/20
+                    border-t-white
+                    rounded-full
+                    animate-spin
+                "
+            />
+
+        </div>
+
+    )
+}
+
     {
         isCasting ? (
 
@@ -823,11 +915,19 @@ const showControls = () => {
                                     togglePlay
                                 }
                                 className="
-                                    text-7xl
-                                    bg-black/50
-                                    w-24
-                                    h-24
+                                    text-4xl
+                                    bg-black/60
+                                    backdrop-blur-md
+                                    w-16
+                                    h-16
+                                    md:w-20
+                                    md:h-20
                                     rounded-full
+                                    flex
+                                    items-center
+                                    justify-center
+                                    transition
+                                  hover:scale-110
                                 "
                             >
                                 {
@@ -846,7 +946,7 @@ const showControls = () => {
 
                 {/* BOTTOM */}
 
-                <div className="p-5">
+                <div className="px-4 pb-4 pt-2 md:p-5 safe-bottom">
 
                     <input
                         type="range"

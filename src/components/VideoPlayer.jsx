@@ -18,10 +18,12 @@ const placeholderTitle = (title) => {
 };
 
 export default function VideoPlayer({
-  episode,
-  showId,
-  showTitle,
-  episodeIndex
+    episode,
+    showId,
+    showTitle,
+    episodeIndex,
+    episodes,
+    onEpisodeSelect
 }) {
 
   const videoRef = useRef();
@@ -33,6 +35,7 @@ export default function VideoPlayer({
   const [isCasting, setIsCasting] = useState(false);
   const [castTime, setCastTime] = useState(0);
   const [castDuration, setCastDuration] = useState(0);
+  const [showEpisodes, setShowEpisodes] = useState(false);
 
   // Check poster image
   useEffect(() => {
@@ -650,6 +653,121 @@ useEffect(() => {
 
     )
 }
+
+{
+    showEpisodes && (
+
+        <div
+            className="
+                absolute
+                top-0
+                right-0
+                h-full
+                w-80
+                bg-black/70
+                backdrop-blur-md
+                overflow-y-auto
+                z-50
+            "
+        >
+
+            <div className="p-4">
+                <h2 className="text-xl font-bold">
+                    Episodes
+                </h2>
+            </div>
+
+            {
+                episodes?.map(
+                    (
+                        ep,
+                        index
+                    ) => (
+
+                        <button
+                            key={index}
+                            onClick={() => {
+
+                                onEpisodeSelect(
+                                    ep,
+                                    index
+                                );
+
+                                setShowEpisodes(
+                                    false
+                                );
+
+                            }}
+                            className={`
+                                flex
+                                gap-3
+                                w-full
+                                p-3
+                                text-left
+                                hover:bg-white/10
+
+                                ${
+                                    index ===
+                                    episodeIndex
+                                        ? "bg-white/10"
+                                        : ""
+                                }
+                            `}
+                        >
+
+                            <img
+                                src={
+                                    ep.poster
+                                }
+                                className="
+                                    w-24
+                                    h-14
+                                    object-cover
+                                    rounded
+                                "
+                            />
+
+                            <div>
+
+                                <p className="font-semibold">
+                                    {
+                                        ep.episode
+                                    }
+                                </p>
+
+                            </div>
+
+                        </button>
+
+                    )
+                )
+            }
+
+        </div>
+
+    )
+}
+
+<div className="absolute top-3 right-3 z-20">
+    <button
+        onClick={() =>
+            setShowEpisodes(
+                !showEpisodes
+            )
+        }
+        className="
+            bg-black/60
+            backdrop-blur-md
+            px-4
+            py-2
+            rounded-lg
+            text-white
+            hover:bg-black/80
+        "
+    >
+        Episodes
+    </button>
+</div>
 
       {castReady && (
           <div className="absolute top-3 right-3 z-10">

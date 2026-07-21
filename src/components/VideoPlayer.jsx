@@ -22,7 +22,8 @@ export default function VideoPlayer({
     showId,
     showTitle,
     episodeIndex,
-    episodes
+    episodes,
+    onEpisodeSelect
 }) {
 
   const videoRef = useRef();
@@ -805,22 +806,14 @@ const toggleFullscreen = () => {
                             `}
                             onClick={() => {
 
-                                window.history.pushState(
-                                    {},
-                                    "",
-                                    `/watch/${showId}?episode=${index}`
-                                );
-
-                                window.dispatchEvent(
-                                    new PopStateEvent(
-                                        "popstate"
-                                    )
+                                onEpisodeSelect(
+                                    ep,
+                                    index
                                 );
 
                                 setShowEpisodes(
                                     false
                                 );
-
                             }}
                         >
                             {ep.episode}

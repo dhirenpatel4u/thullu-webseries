@@ -37,6 +37,10 @@ export default function VideoPlayer({
   const [castDuration, setCastDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showEpisodes, setShowEpisodes] = useState(false);
+  const [showUI, setShowUI] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const hideTimer = useRef();
 
   // Check poster image
   useEffect(() => {
@@ -585,6 +589,39 @@ useEffect(() => {
 
 }, [isCasting]);
 
+useEffect(() => {
+
+    const video =
+        videoRef.current;
+
+    if (!video) return;
+
+    const update = () => {
+
+        setCurrentTime(
+            video.currentTime
+        );
+
+        setDuration(
+            video.duration || 0
+        );
+    };
+
+    video.addEventListener(
+        "timeupdate",
+        update
+    );
+
+    return () => {
+
+        video.removeEventListener(
+            "timeupdate",
+            update
+        );
+    };
+
+}, [episode]);
+
 const toggleFullscreen = () => {
 
     const container =
@@ -605,6 +642,37 @@ const toggleFullscreen = () => {
         setIsFullscreen(false);
 
     }
+};
+
+const togglePlay = () => {
+
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    if (video.paused) {
+        video.play();
+    } else {
+        video.pause();
+    }
+
+    showControls();
+};
+
+const showControls = () => {
+
+    setShowUI(true);
+
+    clearTimeout(
+        hideTimer.current
+    );
+
+    hideTimer.current =
+        setTimeout(() => {
+
+            setShowUI(false);
+
+        }, 3000);
 };
 
   
@@ -705,7 +773,8 @@ const toggleFullscreen = () => {
             ref={videoRef}
             src={episode.url}
             poster={poster}
-            controls
+            controls={false}
+            onMouseMove={showControls}
             controlsList="nodownload"
             preload="metadata"
             onTimeUpdate={handleTimeUpdate}
@@ -721,9 +790,135 @@ const toggleFullscreen = () => {
             "
         />
 
+
     )
 }
 
+{
+    !isCasting &&
+    showUI && (
+
+        <div
+            className="
+                absolute
+                inset-0
+                z-10
+                flex
+                flex-col
+                justify-between
+                bg-gradient-to-t
+                from-black/90
+                via-transparent
+                to-black/70
+            "
+        >
+
+            {/* Top */}
+
+            <div
+                className="
+                    flex
+                    justify-between
+                    p-5
+                "
+            >
+                <div>
+
+                    <h2 className="text-xl font-bold">
+                        {showTitle}
+                    </h2>
+
+                    <p>
+                        {episode.episode}
+                    </p>
+
+                </div>
+            </div>
+
+
+            {/* Center */}
+
+            <div
+                className="
+                    flex
+                    justify-center
+                    items-center
+                "
+            >
+
+                <button
+                    onClick={togglePlay}
+                    className="
+                        text-7xl
+                        bg-black/50
+                        w-24
+                        h-24
+                        rounded-full
+                    "
+                >
+                    {
+                        videoRef.current
+                            ?.paused
+                            ? "▶"
+                            : "❚❚"
+                    }
+                </button>
+
+            </div>
+
+
+            {/* Bottom */}
+
+            <div className="p-5">
+
+                <input
+                    type="range"
+                    min="0"
+                    max={duration}
+                    value={currentTime}
+                    onChange={(e) => {
+
+                        videoRef.current
+                            .currentTime =
+                                Number(
+                                    e.target.value
+                                );
+
+                    }}
+                    className="
+                        w-full
+                    "
+                />
+
+                <div
+                    className="
+                        flex
+                        justify-between
+                        mt-2
+                        text-sm
+                    "
+                >
+
+                    <span>
+                        {formatTime(
+                            currentTime
+                        )}
+                    </span>
+
+                    <span>
+                        {formatTime(
+                            duration
+                        )}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+    )
+}
+      
 <div className="absolute top-3 right-3 z-20 flex gap-2">
 
     <button

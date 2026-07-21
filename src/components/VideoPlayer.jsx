@@ -534,6 +534,46 @@ useEffect(() => {
 
 }, []);
 
+useEffect(() => {
+
+    if (
+        !window.Plyr ||
+        !videoRef.current
+    ) {
+        return;
+    }
+
+    const player =
+        new window.Plyr(
+            videoRef.current,
+            {
+                controls: [
+                    "play",
+                    "progress",
+                    "current-time",
+                    "duration",
+                    "settings",
+                    "fullscreen"
+                ]
+            }
+        );
+
+    player.source = {
+        type: "video",
+        sources: [
+            {
+                src: episode.url,
+                type: "video/mp4"
+            }
+        ]
+    };
+
+    return () => {
+        player.destroy();
+    };
+
+}, [episode]);
+
   
   return (
     <div className="relative">
@@ -632,6 +672,7 @@ useEffect(() => {
             ref={videoRef}
             src={episode.url}
             poster={poster}
+            className="plyr"
             controls
             controlsList="nodownload"
             preload="metadata"

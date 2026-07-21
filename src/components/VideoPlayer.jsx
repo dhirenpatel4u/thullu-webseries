@@ -1029,7 +1029,37 @@ hideTimer.current =
                 ? castTime
                 : currentTime
         }
-        onChange={...}
+      
+onChange={(e) => {
+
+    if (isCasting) {
+
+        const media =
+            window.cast.framework
+                .CastContext
+                .getInstance()
+                .getCurrentSession()
+                ?.getMediaSession();
+
+        if (!media) return;
+
+        const request =
+            new window.chrome.cast.media
+                .SeekRequest();
+
+        request.currentTime =
+            Number(e.target.value);
+
+        media.seek(request);
+
+    } else {
+
+        videoRef.current.currentTime =
+            Number(e.target.value);
+
+    }
+
+}}
         className="
             absolute
             inset-0

@@ -18,10 +18,11 @@ const placeholderTitle = (title) => {
 };
 
 export default function VideoPlayer({
-  episode,
-  showId,
-  showTitle,
-  episodeIndex
+    episode,
+    showId,
+    showTitle,
+    episodeIndex,
+    episodes
 }) {
 
   const videoRef = useRef();
@@ -780,13 +781,56 @@ const toggleFullscreen = () => {
                 Episodes
             </h2>
 
-            <p className="px-4 pb-3">
-                Pass episodes from
-                parent component.
-            </p>
+            {
+                episodes?.map(
+                    (
+                        ep,
+                        index
+                    ) => (
+
+                        <button
+                            key={index}
+                            className={`
+                                block
+                                w-full
+                                p-4
+                                text-left
+                                hover:bg-white/10
+                                ${
+                                    index ===
+                                    episodeIndex
+                                        ? "bg-white/10"
+                                        : ""
+                                }
+                            `}
+                            onClick={() => {
+
+                                window.history.pushState(
+                                    {},
+                                    "",
+                                    `/watch/${showId}?episode=${index}`
+                                );
+
+                                window.dispatchEvent(
+                                    new PopStateEvent(
+                                        "popstate"
+                                    )
+                                );
+
+                                setShowEpisodes(
+                                    false
+                                );
+
+                            }}
+                        >
+                            {ep.episode}
+                        </button>
+
+                    )
+                )
+            }
 
         </div>
-
     )
 }
       

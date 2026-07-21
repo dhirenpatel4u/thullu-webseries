@@ -40,6 +40,7 @@ export default function VideoPlayer({
   const [showUI, setShowUI] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isPaused, setIsPaused] = useState(true);
   const [isBuffering, setIsBuffering] = useState(false);
   const [buffered, setBuffered] = useState(0);
   const hideTimer = useRef();
@@ -815,6 +816,10 @@ hideTimer.current =
                 controls={false}
                 onMouseMove={showControls}
                 onClick={togglePlay}
+                onPlay={() => setIsPaused(false)}
+                onPause={() => setIsPaused(true)}
+                onWaiting={() => setIsBuffering(true)}
+                onPlaying={() => setIsBuffering(false)}
                 controlsList="nodownload"
                 preload="metadata"
                 onTimeUpdate={handleTimeUpdate}
@@ -941,8 +946,7 @@ hideTimer.current =
                                 "
                             >
                                 {
-                                    videoRef.current
-                                        ?.paused
+                                    videoRef.current?.paused
                                         ? "▶"
                                         : "❚❚"
                                 }

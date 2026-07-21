@@ -18,12 +18,12 @@ const placeholderTitle = (title) => {
 };
 
 export default function VideoPlayer({
-    episode,
-    showId,
-    showTitle,
-    episodeIndex,
-    episodes,
-    onEpisodeSelect
+  episode,
+  showId,
+  showTitle,
+  episodeIndex,
+  episodes,
+  onEpisodeSelect
 }) {
 
   const videoRef = useRef();
@@ -539,7 +539,7 @@ useEffect(() => {
 
   
   return (
-    <div className="relative">
+    <div className="relative group">
 {
     isCasting ? (
 
@@ -664,87 +664,100 @@ useEffect(() => {
                 right-0
                 h-full
                 w-80
-                bg-black/70
-                backdrop-blur-md
+                bg-black/60
+                backdrop-blur-xl
                 overflow-y-auto
-                z-50
+                z-40
+                border-l
+                border-white/10
             "
         >
 
             <div className="p-4">
-                <h2 className="text-xl font-bold">
+
+                <h2
+                    className="
+                        text-xl
+                        font-bold
+                        mb-4
+                    "
+                >
                     Episodes
                 </h2>
+
+                {
+                    episodes?.map(
+                        (
+                            ep,
+                            index
+                        ) => (
+
+                            <button
+                                key={index}
+                                onClick={() => {
+
+                                    onEpisodeSelect(
+                                        ep,
+                                        index
+                                    );
+
+                                    setShowEpisodes(
+                                        false
+                                    );
+                                }}
+                                className={`
+                                    flex
+                                    gap-3
+                                    w-full
+                                    p-3
+                                    rounded-lg
+                                    mb-2
+                                    text-left
+                                    transition
+                                    ${
+                                        index ===
+                                        episodeIndex
+                                            ? "bg-white/20"
+                                            : "hover:bg-white/10"
+                                    }
+                                `}
+                            >
+
+                                <img
+                                    src={
+                                        ep.poster
+                                    }
+                                    className="
+                                        w-20
+                                        h-12
+                                        rounded
+                                        object-cover
+                                    "
+                                />
+
+                                <div>
+
+                                    <p
+                                        className="
+                                            text-sm
+                                            font-semibold
+                                        "
+                                    >
+                                        {
+                                            ep.episode
+                                        }
+                                    </p>
+
+                                </div>
+
+                            </button>
+                        )
+                    )
+                }
+
             </div>
 
-            {
-                episodes?.map(
-                    (
-                        ep,
-                        index
-                    ) => (
-
-                        <button
-                            key={index}
-                            onClick={() => {
-
-                                onEpisodeSelect(
-                                    ep,
-                                    index
-                                );
-
-                                setShowEpisodes(
-                                    false
-                                );
-
-                            }}
-                            className={`
-                                flex
-                                gap-3
-                                w-full
-                                p-3
-                                text-left
-                                hover:bg-white/10
-
-                                ${
-                                    index ===
-                                    episodeIndex
-                                        ? "bg-white/10"
-                                        : ""
-                                }
-                            `}
-                        >
-
-                            <img
-                                src={
-                                    ep.poster
-                                }
-                                className="
-                                    w-24
-                                    h-14
-                                    object-cover
-                                    rounded
-                                "
-                            />
-
-                            <div>
-
-                                <p className="font-semibold">
-                                    {
-                                        ep.episode
-                                    }
-                                </p>
-
-                            </div>
-
-                        </button>
-
-                    )
-                )
-            }
-
         </div>
-
     )
 }
 
@@ -769,11 +782,44 @@ useEffect(() => {
     </button>
 </div>
 
-      {castReady && (
-          <div className="absolute top-3 right-3 z-10">
-              <google-cast-launcher />
-          </div>
-      )}
+<div
+    className="
+        absolute
+        top-3
+        right-3
+        z-30
+        flex
+        gap-2
+    "
+>
+
+    {/* Desktop only */}
+    <button
+        onClick={() =>
+            setShowEpisodes(
+                !showEpisodes
+            )
+        }
+        className="
+            hidden
+            md:block
+            bg-black/60
+            backdrop-blur-md
+            px-4
+            py-2
+            rounded-lg
+            hover:bg-black/80
+        "
+    >
+        Episodes
+    </button>
+
+    {castReady && (
+        <google-cast-launcher />
+    )}
+
+</div>
+      
     </div>
   );
 }

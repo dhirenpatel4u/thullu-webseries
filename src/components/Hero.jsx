@@ -23,36 +23,90 @@ export default function Hero({ shows }) {
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const timerRef = useRef(null);
 
-  useEffect(() => {
+useEffect(() => {
+
     if (shows.length) {
-      const randomShows = [...shows]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 5);
 
-      setSlides(randomShows);
+        const randomShows =
+            [...shows]
+            .sort(
+                () => Math.random() - 0.5
+            )
+            .slice(0, 5);
+
+        setSlides(
+            randomShows
+        );
+
+        setCurrent(0);
+
     }
-  }, [shows]);
 
-  useEffect(() => {
-    if (slides.length <= 1) return;
+}, [shows]);
 
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, 5000);
+  const startAutoSlide = () => {
 
-    return () => clearInterval(timer);
-  }, [slides]);
+    clearInterval(
+        timerRef.current
+    );
+
+    timerRef.current =
+        setInterval(() => {
+
+            setCurrent((prev) =>
+                (prev + 1) %
+                slides.length
+            );
+
+        }, 5000);
+
+};
+
+useEffect(() => {
+
+    if (
+        slides.length <= 1
+    ) {
+        return;
+    }
+
+    startAutoSlide();
+
+    return () => {
+
+        clearInterval(
+            timerRef.current
+        );
+
+    };
+
+}, [slides]);
 
   if (!slides.length) return null;
 
-  const nextSlide = () => {
-    setCurrent((prev) => (prev + 1) % slides.length);
-  };
+const nextSlide = () => {
 
-  const prevSlide = () => {
-    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+    setCurrent((prev) =>
+        (prev + 1) %
+        slides.length
+    );
+
+    startAutoSlide();
+
+};
+
+const prevSlide = () => {
+
+    setCurrent((prev) =>
+        (prev - 1 + slides.length) %
+        slides.length
+    );
+
+    startAutoSlide();
+
+};
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -228,7 +282,7 @@ export default function Hero({ shows }) {
         {slides.map((_, index) => (
           <div
             key={index}
-            onClick={() => setCurrent(index)}
+            onClick={() => { setCurrent(index); startAutoSlide(); }}
             className={`
               h-2
               rounded-full

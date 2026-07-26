@@ -74,6 +74,7 @@ return (
 
 <VideoPlayer
   episode={selectedEpisode}
+  show={show}
   showId={show.id}
   showTitle={show.title}
   episodeIndex={selectedIndex}

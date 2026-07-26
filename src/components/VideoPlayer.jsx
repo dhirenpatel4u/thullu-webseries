@@ -647,7 +647,7 @@ useEffect(() => {
             ${
                 videoLoaded
                 ? ""
-                : "max-h-[90vw]"
+                : "max-h-[85vw]"
             }
         `}
     >
@@ -681,8 +681,8 @@ useEffect(() => {
 
             className="
                 w-full
-                max-h-[90vw]
-                md:max-h-[85vh]
+                max-h-[85vw]
+                md:max-h-[80vh]
                 object-contain
                 bg-black
             "

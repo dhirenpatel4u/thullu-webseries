@@ -19,7 +19,6 @@ const placeholderTitle = (title) => {
 
 export default function VideoPlayer({
   episode,
-  show,
   showId,
   showTitle,
   episodeIndex
@@ -542,66 +541,9 @@ useEffect(() => {
 
 }, []);
 
-const shareSeries = async()=>{
-
-    const url =
-
-        `${window.location.origin}/watch/${show.id}`;
-
-
-    const text =
-
-`${show.title}
-
-${show.year || ""}
-
-${show.ott || ""}
-
-Watch all episodes in HD Quality.
-
-${url}`;
-
-
-    try{
-
-        if(navigator.share){
-
-            await navigator.share({
-
-                title:
-                    show.title,
-
-                text,
-
-                url
-
-            });
-
-        }
-
-        else{
-
-            await navigator
-                .clipboard
-                .writeText(url);
-
-            alert(
-                "Link copied."
-            );
-
-        }
-
-    }catch(err){
-
-        console.log(err);
-
-    }
-
-};
-
   
   return (
-    <div className="relative pb-12">
+    <div className="relative">
 {
     isCasting ? (
 
@@ -756,42 +698,6 @@ ${url}`;
               <google-cast-launcher />
           </div>
       )}
-
-      <button
-
-        onClick={shareSeries}
-
-        className="
-
-            absolute
-            bottom-0
-            right-0
-
-            mt-3
-
-            bg-red-600
-            hover:bg-red-700
-
-            px-4
-            py-2
-
-            rounded-lg
-
-            text-sm
-            font-semibold
-
-            flex
-            items-center
-            gap-2
-
-        "
-
-    >
-
-        Share
-
-    </button>
-      
     </div>
   );
 }

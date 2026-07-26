@@ -33,6 +33,13 @@ export default function VideoPlayer({
   const [isCasting, setIsCasting] = useState(false);
   const [castTime, setCastTime] = useState(0);
   const [castDuration, setCastDuration] = useState(0);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  useEffect(() => {
+
+    setVideoLoaded(false);
+
+  }, [episode]);
 
   // Check poster image
   useEffect(() => {
@@ -628,6 +635,23 @@ useEffect(() => {
 
     ) : (
 
+    <div
+        className={`
+            w-full
+            rounded-xl
+            overflow-hidden
+            bg-black
+            flex
+            items-center
+            justify-center
+            ${
+                videoLoaded
+                ? ""
+                : "max-h-[85vw]"
+            }
+        `}
+    >
+
         <video
             ref={videoRef}
             src={episode.url}
@@ -635,18 +659,36 @@ useEffect(() => {
             controls
             controlsList="nodownload"
             preload="metadata"
-            onTimeUpdate={handleTimeUpdate}
+
+            onLoadedData={() => {
+
+                setVideoLoaded(true);
+
+            }}
+
+            onTimeUpdate={
+                handleTimeUpdate
+            }
+
             onSeeked={() => {
+
                 localPositionRef.current =
                     videoRef.current.currentTime;
-                    handleSeek();
+
+                handleSeek();
+
             }}
+
             className="
-              w-full
-              rounded-xl
-              bg-black
+                w-full
+                max-h-[85vw]
+                md:max-h-[80vh]
+                object-contain
+                bg-black
             "
         />
+
+    </div>
 
     )
 }

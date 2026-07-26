@@ -28,8 +28,6 @@ export default function VideoPlayer({
   const localPositionRef = useRef(0);
   const castPositionRef = useRef(0);
   const previousEpisode = useRef("");
-  const bufferSeconds = 5;
-  const bufferingRef = useRef(false);
   
   const [poster, setPoster] = useState("");
   const [isCasting, setIsCasting] = useState(false);
@@ -85,19 +83,15 @@ export default function VideoPlayer({
         x.episodeIndex === episodeIndex
     );
 
-const playVideo = () => {
+    const playVideo = () => {
 
-    if (item) {
+      if (item) {
         video.currentTime = item.time;
-    }
+      }
 
+      video.play().catch(() => {});
 
-    video.pause();
-
-
-    waitForBuffer();
-
-};
+    };
 
     video.addEventListener("loadedmetadata", playVideo);
 
@@ -547,134 +541,6 @@ useEffect(() => {
 
 }, []);
 
-const getBufferAhead = () => {
-
-    const video = videoRef.current;
-
-    if (!video) return 0;
-
-
-    for (let i = 0; i < video.buffered.length; i++) {
-
-        if (
-            video.currentTime >= video.buffered.start(i) &&
-            video.currentTime <= video.buffered.end(i)
-        ) {
-
-            return (
-                video.buffered.end(i) -
-                video.currentTime
-            );
-
-        }
-
-    }
-
-    return 0;
-};
-
-
-
-const waitForBuffer = () => {
-
-    const video = videoRef.current;
-
-    if (!video) return;
-
-
-    const checkBuffer = () => {
-
-        let buffered = 0;
-
-
-        for (let i = 0; i < video.buffered.length; i++) {
-
-            if (
-                video.currentTime >= video.buffered.start(i) &&
-                video.currentTime <= video.buffered.end(i)
-            ) {
-
-                buffered =
-                    video.buffered.end(i) -
-                    video.currentTime;
-
-                break;
-            }
-        }
-
-
-        console.log(
-            "Buffered:",
-            buffered
-        );
-
-
-        if (buffered >= 5) {
-
-            video.removeEventListener(
-                "progress",
-                checkBuffer
-            );
-
-            video.removeEventListener(
-                "canplay",
-                checkBuffer
-            );
-
-
-            video.play()
-            .then(() => {
-
-                console.log(
-                    "Playback started"
-                );
-
-            })
-            .catch(err => {
-
-                console.log(
-                    "Play blocked:",
-                    err
-                );
-
-            });
-
-        }
-
-    };
-
-
-    video.addEventListener(
-        "progress",
-        checkBuffer
-    );
-
-
-    video.addEventListener(
-        "canplay",
-        checkBuffer
-    );
-
-
-    // immediately check
-    checkBuffer();
-
-};
-
-
-
-const handleWaiting = () => {
-
-    const video = videoRef.current;
-
-    if (!video) return;
-
-
-    video.pause();
-
-    waitForBuffer();
-
-};
   
   return (
     <div className="relative">
@@ -778,7 +644,6 @@ const handleWaiting = () => {
             flex
             items-center
             justify-center
-            relative
             ${
                 videoLoaded
                 ? ""
@@ -791,21 +656,9 @@ const handleWaiting = () => {
             ref={videoRef}
             src={episode.url}
             poster={poster}
-            onWaiting={handleWaiting}
-            muted
             controls
             controlsList="nodownload"
-            preload="auto"
-
-            onWaiting={() => {
-
-              console.log("Buffering started");
-
-              videoRef.current.pause();
-
-              waitForBuffer();
-
-            }}
+            preload="metadata"
 
             onLoadedData={() => {
 
@@ -817,20 +670,14 @@ const handleWaiting = () => {
                 handleTimeUpdate
             }
 
-onSeeked={() => {
+            onSeeked={() => {
 
-    localPositionRef.current =
-        videoRef.current.currentTime;
+                localPositionRef.current =
+                    videoRef.current.currentTime;
 
+                handleSeek();
 
-    videoRef.current.pause();
-
-    waitForBuffer();
-
-
-    handleSeek();
-
-}}
+            }}
 
             className="
                 w-full
@@ -845,35 +692,6 @@ onSeeked={() => {
 
     )
 }
-
-{isBuffering && (
-
-    <div
-        className="
-            absolute
-            inset-0
-            flex
-            items-center
-            justify-center
-            pointer-events-none
-        "
-    >
-
-        <div
-            className="
-                w-12
-                h-12
-                rounded-full
-                border-4
-                border-white/30
-                border-t-white
-                animate-spin
-            "
-        />
-
-    </div>
-
-)}
 
       {castReady && (
           <div className="absolute top-3 right-3 z-10">

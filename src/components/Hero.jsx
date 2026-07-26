@@ -23,110 +23,124 @@ export default function Hero({ shows }) {
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const isSwiping = useRef(false);
   const timerRef = useRef(null);
 
-useEffect(() => {
-
+  // Random 5 shows
+  useEffect(() => {
     if (shows.length) {
+      const randomShows = [...shows]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 5);
 
-        const randomShows =
-            [...shows]
-            .sort(
-                () => Math.random() - 0.5
-            )
-            .slice(0, 5);
-
-        setSlides(
-            randomShows
-        );
-
-        setCurrent(0);
-
+      setSlides(randomShows);
+      setCurrent(0);
     }
+  }, [shows]);
 
-}, [shows]);
-
+  // Auto slider
   const startAutoSlide = () => {
+    clearInterval(timerRef.current);
 
-    clearInterval(
-        timerRef.current
-    );
+    timerRef.current = setInterval(() => {
+      setCurrent((prev) => {
+        return (prev + 1) % slides.length;
+      });
+    }, 5000);
+  };
 
-    timerRef.current =
-        setInterval(() => {
-
-            setCurrent((prev) =>
-                (prev + 1) %
-                slides.length
-            );
-
-        }, 5000);
-
-};
-
-useEffect(() => {
-
-    if (
-        slides.length <= 1
-    ) {
-        return;
-    }
+  useEffect(() => {
+    if (slides.length <= 1) return;
 
     startAutoSlide();
 
     return () => {
-
-        clearInterval(
-            timerRef.current
-        );
-
+      clearInterval(timerRef.current);
     };
+  }, [slides]);
 
-}, [slides]);
-
-  if (!slides.length) return null;
-
-const nextSlide = () => {
-
-    setCurrent((prev) =>
-        (prev + 1) %
-        slides.length
-    );
+  // Next
+  const nextSlide = () => {
+    setCurrent((prev) => {
+      return (prev + 1) % slides.length;
+    });
 
     startAutoSlide();
+  };
 
-};
-
-const prevSlide = () => {
-
-    setCurrent((prev) =>
-        (prev - 1 + slides.length) %
-        slides.length
-    );
+  // Previous
+  const prevSlide = () => {
+    setCurrent((prev) => {
+      return (prev - 1 + slides.length) % slides.length;
+    });
 
     startAutoSlide();
+  };
 
-};
-
+  // Touch Start
   const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
+    isSwiping.current = false;
+
+    touchStartX.current =
+      e.touches[0].clientX;
+
+    touchEndX.current =
+      e.touches[0].clientX;
   };
 
+  // Touch Move
   const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
+    touchEndX.current =
+      e.touches[0].clientX;
 
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-
-    if (Math.abs(diff) < 50) return;
-
-    if (diff > 0) {
-      nextSlide();
-    } else {
-      prevSlide();
+    if (
+      Math.abs(
+        touchStartX.current -
+        touchEndX.current
+      ) > 20
+    ) {
+      isSwiping.current = true;
     }
   };
+
+  // Touch End
+  const handleTouchEnd = () => {
+
+    // Only touch
+    if (!isSwiping.current) {
+      touchStartX.current = 0;
+      touchEndX.current = 0;
+      return;
+    }
+
+    const diff =
+      touchStartX.current -
+      touchEndX.current;
+
+    // Ignore small movement
+    if (Math.abs(diff) < 50) {
+      touchStartX.current = 0;
+      touchEndX.current = 0;
+      return;
+    }
+
+    // Left Swipe
+    if (diff > 0) {
+      nextSlide();
+    }
+
+    // Right Swipe
+    else {
+      prevSlide();
+    }
+
+    // Reset values
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+    isSwiping.current = false;
+  };
+
+  if (!slides.length) return null;
 
   const show = slides[current];
 
@@ -143,14 +157,18 @@ const prevSlide = () => {
         overflow-hidden
       "
     >
+      {/* Background Image */}
+
       <img
         src={show.episodes[0].poster}
         alt={show.title}
         onError={(e) => {
           e.target.onerror = null;
-          e.target.src = `https://placehold.co/600x400/D3D3D3/red?font=lora&text=${placeholderTitle(
-            show.title
-          )}`;
+
+          e.target.src =
+            `https://placehold.co/600x400/D3D3D3/red?font=lora&text=${placeholderTitle(
+              show.title
+            )}`;
         }}
         className="
           absolute
@@ -163,6 +181,8 @@ const prevSlide = () => {
         "
       />
 
+      {/* Overlay */}
+
       <div
         className="
           absolute
@@ -173,6 +193,8 @@ const prevSlide = () => {
           to-transparent
         "
       />
+
+      {/* Content */}
 
       <div
         className="
@@ -220,6 +242,7 @@ const prevSlide = () => {
       </div>
 
       {/* Left Arrow */}
+
       <button
         onClick={prevSlide}
         className="
@@ -245,6 +268,7 @@ const prevSlide = () => {
       </button>
 
       {/* Right Arrow */}
+
       <button
         onClick={nextSlide}
         className="
@@ -269,6 +293,8 @@ const prevSlide = () => {
         ❯
       </button>
 
+      {/* Indicators */}
+
       <div
         className="
           absolute
@@ -282,7 +308,10 @@ const prevSlide = () => {
         {slides.map((_, index) => (
           <div
             key={index}
-            onClick={() => { setCurrent(index); startAutoSlide(); }}
+            onClick={() => {
+              setCurrent(index);
+              startAutoSlide();
+            }}
             className={`
               h-2
               rounded-full

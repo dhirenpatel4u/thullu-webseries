@@ -36,7 +36,6 @@ export default function VideoPlayer({
   const [castTime, setCastTime] = useState(0);
   const [castDuration, setCastDuration] = useState(0);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(false);
 
   useEffect(() => {
 
@@ -94,6 +93,7 @@ const playVideo = () => {
 
 
     video.pause();
+
 
     waitForBuffer();
 
@@ -582,33 +582,34 @@ const waitForBuffer = () => {
     if (!video) return;
 
 
-    bufferingRef.current = true;
-
-    setIsBuffering(true);
-
-
     const checkBuffer = () => {
 
-        const buffer = getBufferAhead();
+        let buffered = 0;
+
+
+        for (let i = 0; i < video.buffered.length; i++) {
+
+            if (
+                video.currentTime >= video.buffered.start(i) &&
+                video.currentTime <= video.buffered.end(i)
+            ) {
+
+                buffered =
+                    video.buffered.end(i) -
+                    video.currentTime;
+
+                break;
+            }
+        }
 
 
         console.log(
-            "Buffer:",
-            buffer
+            "Buffered:",
+            buffered
         );
 
 
-        if (buffer >= bufferSeconds) {
-
-
-            bufferingRef.current = false;
-
-            setIsBuffering(false);
-
-
-            video.play()
-            .catch(()=>{});
-
+        if (buffered >= 5) {
 
             video.removeEventListener(
                 "progress",
@@ -619,6 +620,24 @@ const waitForBuffer = () => {
                 "canplay",
                 checkBuffer
             );
+
+
+            video.play()
+            .then(() => {
+
+                console.log(
+                    "Playback started"
+                );
+
+            })
+            .catch(err => {
+
+                console.log(
+                    "Play blocked:",
+                    err
+                );
+
+            });
 
         }
 
@@ -637,6 +656,7 @@ const waitForBuffer = () => {
     );
 
 
+    // immediately check
     checkBuffer();
 
 };
@@ -772,9 +792,20 @@ const handleWaiting = () => {
             src={episode.url}
             poster={poster}
             onWaiting={handleWaiting}
+            muted
             controls
             controlsList="nodownload"
             preload="auto"
+
+            onWaiting={() => {
+
+              console.log("Buffering started");
+
+              videoRef.current.pause();
+
+              waitForBuffer();
+
+            }}
 
             onLoadedData={() => {
 

@@ -48263,15 +48263,29 @@
     },
     {
         "title": "Ikka",
-        "description": "",
+        "description": "With a loved one's life at stake, a celebrated lawyer must defend a man he suspects is guilty — battling his conscience every step of the way.",
         "ott": "Bollywood",
         "year": "2026",
-        "models": [],
+        "models": ["Sunny Deol", "Akshaye Khanna", "Dia Mirza"],
         "episodes": [
             {
                 "episode": "Ikka",
-                "poster": "https://catimages.org/images/2026/07/10/vlcsnap-2026-07-10-00h51m40s382.jpg",
+                "poster": "https://cdn.bollywoodmdb.com/fit-in/videos/1200x675/2026/ikka-ikka-official-trailer-sunny-deol-akshaye-khanna-tillotama-shome-dia-mirza-netflix-2817.jpg",
                 "url": "https://vidfast.vc/movie/1484913"
+            }
+        ]
+    },
+    {
+        "title": "Welcome to the Jungle",
+        "description": "Follows a group of quirky characters gets stuck in a dangerous jungle during a chaotic mission. Filled with confusion, criminals, and hilarious situations, they must work together to survive and find their way out",
+        "ott": "Bollywood",
+        "year": "2026",
+        "models": ["Akshay Kumar", "Suniel Shetty", "Paresh Rawal"],
+        "episodes": [
+            {
+                "episode": "Welcome to the Jungle",
+                "poster": "https://media-cache.cinematerial.com/p/500x/lfyhnqom/welcome-to-the-jungle-indian-movie-poster.jpg",
+                "url": "https://vidfast.vc/movie/tt28540171"
             }
         ]
     }

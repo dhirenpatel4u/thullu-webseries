@@ -1,6 +1,5 @@
 import { useEffect,useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { getRecentlyPlayed } from "../utils/recentlyPlayed";
 
 import Navbar from "../components/Navbar";
 import VideoPlayer from "../components/VideoPlayer";
@@ -30,91 +29,14 @@ useEffect(() => {
         }))
         .find(show => show.id === Number(id));
 
-const params =
-    new URLSearchParams(
-        location.search
-    );
+      const params = new URLSearchParams(location.search);
+      const epIndex = Number(params.get("episode") || 0);
 
-
-// Share link
-if (
-    params.has("episode")
-) {
-
-    const epIndex =
-        Number(
-            params.get(
-                "episode"
-            )
-        );
-
-    setShow(
-        selectedShow
-    );
-
-    setSelectedIndex(
-        epIndex
-    );
-
-    setSelectedEpisode(
-
-        selectedShow
-        .episodes[
-            epIndex
-        ]
-
-        ||
-
-        selectedShow
-        .episodes[0]
-
-    );
-
-}
-
-// Normal open
-else{
-
-    const history =
-        getRecentlyPlayed();
-
-    const recent =
-        history.find(
-            x =>
-            x.id ===
-            Number(id)
-        );
-
-    const epIndex =
-        recent
-        ? recent
-            .episodeIndex
-        : 0;
-
-
-    setShow(
-        selectedShow
-    );
-
-    setSelectedIndex(
-        epIndex
-    );
-
-    setSelectedEpisode(
-
-        selectedShow
-        .episodes[
-            epIndex
-        ]
-
-        ||
-
-        selectedShow
-        .episodes[0]
-
-    );
-
-}
+      setShow(selectedShow);
+      setSelectedIndex(epIndex);
+      setSelectedEpisode(
+        selectedShow.episodes[epIndex] || selectedShow.episodes[0]
+      );
 
     });
 
@@ -150,54 +72,12 @@ return (
 
 <div className="md:col-span-2">
 
-{
-
-selectedEpisode?.url?.startsWith(
-    "https://vidfast.vc/movie/"
-)
-
-? (
-
-<div
-    className="
-        w-full
-        rounded-xl
-        overflow-hidden
-        bg-black
-    "
->
-
-    <iframe
-        src={
-            selectedEpisode.url
-        }
-        allowFullScreen
-        className="
-            w-full
-            aspect-video
-            border-0
-        "
-    />
-
-</div>
-
-)
-
-: (
-
 <VideoPlayer
-    episode={selectedEpisode}
-    show={show}
-    showId={show.id}
-    showTitle={show.title}
-    episodeIndex={
-        selectedIndex
-    }
+  episode={selectedEpisode}
+  showId={show.id}
+  showTitle={show.title}
+  episodeIndex={selectedIndex}
 />
-
-)
-
-}
 
 
 <div className="mt-5 space-y-3 text-gray-300">
